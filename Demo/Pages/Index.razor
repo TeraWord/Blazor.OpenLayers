@@ -1,0 +1,12 @@
+﻿@page "/"
+
+<h1>TeraWord OpenLayers</h1>
+
+<div style="border:1px solid silver;height:640px;">
+    <Map @ref=Map Center=Center />
+</div>
+
+<br />
+
+<button class="btn btn-primary" @onclick=OnCenterClick>center</button>
+<button class="btn btn-primary" @onclick=OnMarkerClick>marker</button>

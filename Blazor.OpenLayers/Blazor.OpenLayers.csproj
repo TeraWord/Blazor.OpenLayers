@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Company>TeraWord</Company>
+    <Product>OpenLayers</Product>
+    <Authors>Marcello Marcellino</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
+    <RootNamespace>TeraWord.Blazor.OpenLayers</RootNamespace>
+    <AssemblyName>TeraWord.Blazor.OpenLayers</AssemblyName>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>2021 By TeraWord</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.6" />
+    <PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="5.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  
+</Project>
