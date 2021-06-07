@@ -13,10 +13,15 @@ namespace TeraWord.Blazor.OpenLayers
     {
         [Inject] private IJSRuntime JSRuntime { get; set; }
 
-        [Parameter] public GeoPoint Center { get => _Center; set { _Center = value; GotoCenter(value); } }
-        private GeoPoint _Center;
+        [Parameter] public Point Center { get => _center; set { _center = value; SetCenter(value); } }
+        private Point _center;
 
-        [Parameter] public ObservableCollection<GeoPoint> Markers { get; set; }
+        [Parameter] public string Attributions { get; set; } = "<a href='https://www.teraword.net'><b>TeraWord</b></a>";
+
+        [Parameter] public double Zoom { get => _zoom; set { _zoom = value; SetZoom(value); } } 
+        private double _zoom = 14;
+
+        [Parameter] public ObservableCollection<Point> Markers { get; set; }
 
         private string Div { get; set; }
 
@@ -31,17 +36,12 @@ namespace TeraWord.Blazor.OpenLayers
         {
             base.OnInitialized();
 
-            Center ??= new GeoPoint { Latitude = 39.2236, Longitude = 9.1181 };
-            Markers ??= new ObservableCollection<GeoPoint>();
+            Center ??= new Point { Latitude = 39.2236, Longitude = 9.1181 };
+            Markers ??= new ObservableCollection<Point>();
 
             Markers.CollectionChanged += Markers_CollectionChanged;
         }
-
-        private async void Markers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (Module is not null) await Module.InvokeVoidAsync("Markers", Markers.Select(x => x.AsOpenLayers));
-        }
-
+        
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
@@ -50,7 +50,7 @@ namespace TeraWord.Blazor.OpenLayers
             {
                 Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/teraword.blazor.openlayers/ol.js");
 
-                if (Module is not null) await Module.InvokeVoidAsync("Init", Div, Center.AsOpenLayers, Markers.Select(x => x.AsOpenLayers));
+                if (Module is not null) await Module.InvokeVoidAsync("Init", Div, Center, Zoom, Markers, Attributions);
             }
             else
             {
@@ -58,9 +58,24 @@ namespace TeraWord.Blazor.OpenLayers
             }            
         }
 
-        public async void GotoCenter(GeoPoint center)
+        private void Markers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (Module is not null) await Module.InvokeVoidAsync("Center", center.AsOpenLayers);
+            SetMarkers(Markers);
+        }
+
+        private async void SetMarkers(ObservableCollection<Point> markers)
+        {
+            if (Module is not null) await Module.InvokeVoidAsync("Markers", markers);
+        }
+
+        private async void SetCenter(Point center)
+        {
+            if (Module is not null) await Module.InvokeVoidAsync("Center", center);
+        }
+
+        private async void SetZoom(double zoom)
+        {
+            if (Module is not null) await Module.InvokeVoidAsync("Zoom", zoom);
         }
 
         protected virtual async ValueTask DisposeAsyncCore()

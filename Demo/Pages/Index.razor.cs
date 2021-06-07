@@ -8,15 +8,20 @@ namespace Demo.Pages
 {
     public partial class Index
     {
-        public GeoPoint Center { get; set; }
+        public Point Center { get; set; }
 
         private Map Map { get; set; }
 
         private static Random rnd = new();
 
-        public GeoPoint NewRndPoint(GeoPoint around, double delta = 0.05)
+        public Point NewRndPoint(Point around, string color, double delta = 0.05)
         {
-            return new GeoPoint(around.Latitude + (rnd.NextDouble() - 0.5) * delta, around.Longitude + (rnd.NextDouble() - 0.5) * delta);
+            return new Point
+            {
+                Latitude = around.Latitude + (rnd.NextDouble() - 0.5) * delta,
+                Longitude = around.Longitude + (rnd.NextDouble() - 0.5) * delta,
+                Color = color
+            };
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -25,20 +30,21 @@ namespace Demo.Pages
 
             if (firstRender)
             {
-                Center = new GeoPoint { Latitude = 39.2236, Longitude = 9.1181 };
+                Center = new Point { Latitude = 39.2236, Longitude = 9.1181, Color = "#00FF00" };
 
-                Map.Markers.Add(NewRndPoint(Center));
+                Map.Markers.Add(Center);
             }
         }
 
         private void OnCenterClick(dynamic e)
         {
-            Center = new GeoPoint { Latitude = 39.2236, Longitude = 9.1181 };
+            Center = new Point { Latitude = 39.2236, Longitude = 9.1181, Color = "#00FF00" }; // Cagliari
         }
 
         private void OnMarkerClick(dynamic e)
         {
-            Map.Markers.Add(new GeoPoint(39.2236 + (rnd.NextDouble()-0.5)*0.05, 9.1181 + (rnd.NextDouble()-0.5)*0.05));
+            var color = (rnd.Next(100) % 2) switch { 0 => "#FF0000", 1 => "#00FF00", _ => "#0000FF" };
+            Map.Markers.Add(NewRndPoint(Center, color));
         }
     }
 }
