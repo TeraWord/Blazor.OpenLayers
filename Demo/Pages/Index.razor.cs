@@ -14,6 +14,23 @@ namespace Demo.Pages
 
         private static Random rnd = new();
 
+        public GeoPoint NewRndPoint(GeoPoint around, double delta = 0.05)
+        {
+            return new GeoPoint(around.Latitude + (rnd.NextDouble() - 0.5) * delta, around.Longitude + (rnd.NextDouble() - 0.5) * delta);
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                Center = new GeoPoint { Latitude = 39.2236, Longitude = 9.1181 };
+
+                Map.Markers.Add(NewRndPoint(Center));
+            }
+        }
+
         private void OnCenterClick(dynamic e)
         {
             Center = new GeoPoint { Latitude = 39.2236, Longitude = 9.1181 };

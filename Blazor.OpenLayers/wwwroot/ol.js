@@ -1,7 +1,7 @@
 ﻿var _Map;
 var _Markers;
 
-export function Init(div, center) {
+export function Init(div, center, markers) {
     _Map = new ol.Map({
         layers: [
             new ol.layer.Tile({
@@ -35,6 +35,8 @@ export function Init(div, center) {
     });
 
     _Map.addLayer(_Markers);
+
+    Markers(markers);
 }
 
 export function Center(center) {
@@ -43,10 +45,10 @@ export function Center(center) {
     //_Map.getView().setZoom(5);
 }
 
-export function Markers(list) {
+export function Markers(markers) {
     _Markers.getSource().clear();
 
-    list.forEach((point) => {
+    markers.forEach((point) => {
         var marker = new ol.Feature({
             geometry: new ol.geom.Point(ol.proj.fromLonLat(point)),
             name: 'Point'
