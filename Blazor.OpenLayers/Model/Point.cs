@@ -16,11 +16,15 @@ namespace TeraWord.Blazor.OpenLayers
             if (coordinates.Length > 1) Longitude = coordinates[1];
         }
 
+        public Point(Point point)
+        {
+            Latitude = point.Latitude;
+            Longitude = point.Longitude;
+        }
+
         public double Latitude { get => _coordinates[1]; set => _coordinates[1] = value; }
 
         public double Longitude { get => _coordinates[0]; set => _coordinates[0] = value; }
-
-        public string Color { get; set; }
 
         /// <summary>
         /// Coordinate in OpenLayers Style: [Longitude, Latitude]

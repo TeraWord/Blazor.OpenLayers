@@ -14,9 +14,18 @@ namespace Demo.Pages
 
         private static Random rnd = new();
 
-        public Point NewRndPoint(Point around, string color, double delta = 0.05)
+        public Point NewPoint(Point around, double delta = 0.05)
         {
             return new Point
+            {
+                Latitude = around.Latitude + (rnd.NextDouble() - 0.5) * delta,
+                Longitude = around.Longitude + (rnd.NextDouble() - 0.5) * delta,
+            };
+        }
+
+        public Marker NewPin(Point around, string color, double delta = 0.05)
+        {
+            return new MarkerPin
             {
                 Latitude = around.Latitude + (rnd.NextDouble() - 0.5) * delta,
                 Longitude = around.Longitude + (rnd.NextDouble() - 0.5) * delta,
@@ -30,21 +39,25 @@ namespace Demo.Pages
 
             if (firstRender)
             {
-                Center = new Point { Latitude = 39.2236, Longitude = 9.1181, Color = "#00FF00" };
+                Center = new Point { Latitude = 39.2236, Longitude = 9.1181 };
 
-                Map.Markers.Add(Center);
+                Map.Markers.Add(new MarkerPin(Center) { Color = "#00FF00" });
             }
         }
 
         private void OnCenterClick(dynamic e)
         {
-            Center = new Point { Latitude = 39.2236, Longitude = 9.1181, Color = "#00FF00" }; // Cagliari
+            Center = new Point { Latitude = 39.2236, Longitude = 9.1181 }; // Cagliari
         }
 
-        private void OnMarkerClick(dynamic e)
+        private void OnPinClick(dynamic e)
         {
             var color = (rnd.Next(100) % 2) switch { 0 => "#FF0000", 1 => "#00FF00", _ => "#0000FF" };
-            Map.Markers.Add(NewRndPoint(Center, color));
+            Map.Markers.Add(NewPin(Center, color));
+        }
+        private void OnFlagClick(dynamic e)
+        {
+            Map.Markers.Add(new MarkerFlag(NewPoint(Center), "Ciao"));
         }
     }
 }
