@@ -14,5 +14,7 @@ namespace TeraWord.Blazor.OpenLayers
         public MarkerPin(Point point) : base(point) { Type = "Pin"; }
 
         public MarkerPin(Point point, string color) : base(point) { Type = "Pin"; Color = color; }
+
+        public virtual string Color { get; set; }
     }
 }

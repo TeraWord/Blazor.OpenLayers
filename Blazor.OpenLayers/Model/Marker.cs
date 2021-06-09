@@ -13,10 +13,6 @@ namespace TeraWord.Blazor.OpenLayers
 
         public Marker(Point point) : base(point) { }
 
-        public string Type { get; internal set; }
-
-        public virtual string Color { get; set; }
-
-        public virtual string Title { get; set; }
+        public string Type { get; internal set; }        
     }
 }

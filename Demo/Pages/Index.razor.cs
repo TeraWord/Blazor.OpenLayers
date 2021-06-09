@@ -59,5 +59,10 @@ namespace Demo.Pages
         {
             Map.Markers.Add(new MarkerFlag(NewPoint(Center), "Ciao"));
         }
+
+        private void OnAwesomeClick(dynamic e)
+        {
+            Map.Markers.Add(new MarkerAwesome(NewPoint(Center), "poop"));
+        }
     }
 }

@@ -21,7 +21,7 @@ namespace TeraWord.Blazor.OpenLayers
         [Parameter] public double Zoom { get => _zoom; set { _zoom = value; SetZoom(value); } } 
         private double _zoom = 14;
 
-        [Parameter] public ObservableCollection<Marker> Markers { get; set; }
+        [Parameter] public ObservableCollection<object> Markers { get; set; }
 
         private string Div { get; set; }
 
@@ -37,7 +37,7 @@ namespace TeraWord.Blazor.OpenLayers
             base.OnInitialized();
 
             Center ??= new Point { Latitude = 39.2236, Longitude = 9.1181 };
-            Markers ??= new ObservableCollection<Marker>();
+            Markers ??= new ObservableCollection<object>();
 
             Markers.CollectionChanged += Markers_CollectionChanged;
         }
@@ -63,7 +63,7 @@ namespace TeraWord.Blazor.OpenLayers
             SetMarkers(Markers);
         }
 
-        private async void SetMarkers(ObservableCollection<Marker> markers)
+        private async void SetMarkers(ObservableCollection<object> markers)
         {
 
 #if DEBUG

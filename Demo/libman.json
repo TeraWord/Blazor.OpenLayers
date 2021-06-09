@@ -5,6 +5,10 @@
     {
       "library": "openlayers@4.6.5",
       "destination": "wwwroot/lib/openlayers/"
+    },
+    {
+      "library": "font-awesome@5.15.3",
+      "destination": "wwwroot/lib/font-awesome/"
     }
   ]
 }

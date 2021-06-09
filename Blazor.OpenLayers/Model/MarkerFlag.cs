@@ -15,5 +15,6 @@ namespace TeraWord.Blazor.OpenLayers
 
         public MarkerFlag(Point point, string title) : base(point) { Type = "Flag"; Title = title; }
 
+        public virtual string Title { get; set; }
     }
 }

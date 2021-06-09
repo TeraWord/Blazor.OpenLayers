@@ -1,6 +1,7 @@
 ﻿var _Map;
 var _Markers;
 
+
 export function Init(div, center, zoom, markers, attributions) {
     _Map = new ol.Map({
         layers: [
@@ -77,6 +78,25 @@ function FlagStyle(marker) {
     ];
 }
 
+// from http://viglino.github.io/OpenLayers-ext/examples/map.awesome.html
+
+function AwesomeStyle(marker) {
+    return [
+        new ol.style.Style({
+            text: new ol.style.Text({
+                text: '\uf007',
+                scale: 1.5,
+                font: '900 18px "Font Awesome 5 Free"',
+                textBaseline: 'bottom',
+                fill: new ol.style.Fill({
+                    color: marker.color
+                }),
+                stroke: new ol.style.Stroke({ color: 'black', width: 1 })
+            })
+        })
+    ];
+}
+
 export function Markers(markers) {
     var source = _Markers.getSource();
 
@@ -95,6 +115,10 @@ export function Markers(markers) {
 
             case "Flag":
                 feature.setStyle(FlagStyle(marker));
+                break;
+
+            case "Awesome":
+                feature.setStyle(AwesomeStyle(marker));
                 break;
         }
 
