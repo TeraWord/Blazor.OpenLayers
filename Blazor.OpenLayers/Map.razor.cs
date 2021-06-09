@@ -51,11 +51,7 @@ namespace TeraWord.Blazor.OpenLayers
                 Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/teraword.blazor.openlayers/ol.js");
 
                 if (Module is not null) await Module.InvokeVoidAsync("Init", Div, Center, Zoom, Markers, Attributions);
-            }
-            else
-            {
-                //if (Module is not null) await Module.InvokeVoidAsync("Center", Center.AsOpenLayers);
-            }            
+            }     
         }
 
         private void Markers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

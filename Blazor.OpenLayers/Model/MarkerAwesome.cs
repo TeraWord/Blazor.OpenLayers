@@ -15,11 +15,11 @@ namespace TeraWord.Blazor.OpenLayers
 
         public MarkerAwesome(Point point, string icon) : base(point) { Type = "Awesome"; Icon = icon; }
 
-        public string Color { get; set; } = "white";
+        public string Color { get; set; } = "#FFFFFF";
 
-        public string BorderColor { get; set; } = "white";
+        public string BorderColor { get; set; } = "#FFFFFF";
 
-        public string backgroundColor { get; set; } = "red";
+        public string BackgroundColor { get; set; } = "#FF0000";
 
         public string Icon { get; set; }
     }

@@ -78,20 +78,45 @@ function FlagStyle(marker) {
     ];
 }
 
-// from http://viglino.github.io/OpenLayers-ext/examples/map.awesome.html
-
 function AwesomeStyle(marker) {
     return [
         new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0, 21],
+                size: [56, 21],
+                offset: [0, 0],
+                opacity: 1,
+                scale: 0.5,
+                color: marker.color,
+                anchorXUnits: 'pixels', // pixels fraction
+                anchorYUnits: 'pixels', // pixels fraction
+                src: './_content/teraword.blazor.openlayers/img/pin-back.png'
+            }),
+        }),
+        new ol.style.Style({
             text: new ol.style.Text({
-                text: '\uf007',
-                scale: 1.5,
+                text: String.fromCodePoint(0xF041), // Map Marker
+                scale: 2,
                 font: '900 18px "Font Awesome 5 Free"',
                 textBaseline: 'bottom',
                 fill: new ol.style.Fill({
-                    color: marker.color
+                    color: marker.backgroundColor
                 }),
-                stroke: new ol.style.Stroke({ color: 'black', width: 1 })
+                stroke: new ol.style.Stroke({
+                    color: marker.borderColor,
+                    width: 3
+                })
+            })
+        }),
+        new ol.style.Style({
+            text: new ol.style.Text({                
+                text: String.fromCodePoint(0x1f3eb),
+                scale: 1, 
+                font: '900 18px "Font Awesome 5 Free"',
+                textBaseline: 'middle',
+                fill: new ol.style.Fill({
+                    color: marker.color
+                })
             })
         })
     ];
@@ -113,7 +138,7 @@ export function Markers(markers) {
                 feature.setStyle(PinStyle(marker));
                 break;
 
-            case "Flag":
+            case "Flag":                
                 feature.setStyle(FlagStyle(marker));
                 break;
 
