@@ -62,7 +62,22 @@ namespace Demo.Pages
 
         private void OnAwesomeClick(dynamic e)
         {
-            Map.Markers.Add(new MarkerAwesome(NewPoint(Center), "poop"));
+            var icons = new int[] { 0xF29A, 0xF5A7, 0xF0F0, 0xF48E };
+            var colors = new string[] {
+                "#990000", "#009900", "#000099",
+                "#997700", "#009977", "#770099",
+                "#990077", "#779900", "#007799",
+            };
+
+            var point = NewPoint(Center);
+
+            var marker = new MarkerAwesome(point)
+            {
+                Icon = icons[rnd.Next(icons.Length)],
+                BackgroundColor = colors[rnd.Next(colors.Length)]
+            };
+
+            Map.Markers.Add(marker);
         }
     }
 }

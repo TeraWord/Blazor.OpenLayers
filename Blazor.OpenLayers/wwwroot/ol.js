@@ -82,7 +82,7 @@ function AwesomeStyle(marker) {
     return [
         new ol.style.Style({
             image: new ol.style.Icon({
-                anchor: [0, 21],
+                anchor: [0, 14],
                 size: [56, 21],
                 offset: [0, 0],
                 opacity: 1,
@@ -110,10 +110,11 @@ function AwesomeStyle(marker) {
         }),
         new ol.style.Style({
             text: new ol.style.Text({                
-                text: String.fromCodePoint(0x1f3eb),
-                scale: 1, 
+                text: String.fromCodePoint(marker.icon),
+                offsetY: -22,
+                opacity: 1,
+                scale: 1,
                 font: '900 18px "Font Awesome 5 Free"',
-                textBaseline: 'middle',
                 fill: new ol.style.Fill({
                     color: marker.color
                 })
@@ -128,11 +129,16 @@ export function Markers(markers) {
     source.clear();
 
     markers.forEach((marker) => {
-        var feature = new ol.Feature({
-            geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)),
-            name: marker.type
-        });
+        var feature = new ol.Feature();
 
+        //feature.setGeometry({
+        //    geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)),
+        //    name: marker.type
+        //});
+
+        feature.setGeometry(new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)));
+        //feature.setGeometryName(marker.type);
+        
         switch (marker.type) {
             case "Pin":
                 feature.setStyle(PinStyle(marker));
