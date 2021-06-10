@@ -55,9 +55,24 @@ namespace Demo.Pages
             var color = (rnd.Next(100) % 2) switch { 0 => "#FF0000", 1 => "#00FF00", _ => "#0000FF" };
             Map.Markers.Add(NewPin(Center, color));
         }
+
         private void OnFlagClick(dynamic e)
         {
-            Map.Markers.Add(new MarkerFlag(NewPoint(Center), "Ciao"));
+            var point = NewPoint(Center);
+           
+            var testi = new string[] {
+                "Ciao", 
+                "TeraWord", 
+                "Mario Rossi",
+                
+                "Testo riempitivo nelle prove grafiche",
+                "|!£$%&/()=?^"
+            };
+
+
+            //point = new Point(39.215704, 9.109290); // Cagliari incroco via Roma - via Sassari
+
+            Map.Markers.Add(new MarkerFlag(point, testi[rnd.Next(testi.Length)]));
         }
 
         private void OnAwesomeClick(dynamic e)

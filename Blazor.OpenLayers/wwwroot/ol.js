@@ -1,7 +1,6 @@
 ﻿var _Map;
 var _Markers;
 
-
 export function Init(div, center, zoom, markers, attributions) {
     _Map = new ol.Map({
         layers: [
@@ -55,24 +54,75 @@ function PinStyle(marker) {
 }
 
 function FlagStyle(marker) {
-    return [
+    var width = 30;
+    var height = 30;
+    var font = 'bold 18px Arial';
+
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext("2d");
+
+    ctx.font = font;
+    width = ctx.measureText(marker.title).width;
+
+    var context = ol.render.toContext(canvas.getContext('2d'), {
+        size: [width, height],
+        pixelRatio: 1,
+        font: font
+    });
+
+    var strokeWidth = 2;
+    var arrowWidth = 6;
+
+    var symbol = [
+        [0 + strokeWidth, 0 + strokeWidth],
+        [width - strokeWidth, 0 + strokeWidth],
+        [width - strokeWidth, height - strokeWidth - arrowWidth],
+        [0 + strokeWidth + arrowWidth * 3, height - strokeWidth - arrowWidth],
+        [0 + strokeWidth + arrowWidth * 2, height - strokeWidth],
+        [0 + strokeWidth + arrowWidth * 1, height - strokeWidth - arrowWidth],
+        [0 + strokeWidth, height - strokeWidth - arrowWidth],
+        [0 + strokeWidth, 0 + strokeWidth]
+    ];
+
+    context.setStyle(
         new ol.style.Style({
             fill: new ol.style.Fill({
-                color: 'rgba(255,255,255,0.4)'
+                color: "#ffcc66"
             }),
             stroke: new ol.style.Stroke({
-                color: '#3399CC',
-                width: 1.25
+                color: "#b37700",
+                width: strokeWidth
             }),
+        })
+    );
+
+    context.drawGeometry(new ol.geom.Polygon([symbol]));
+
+    return [
+        new ol.style.Style({
+            image: new ol.style.Icon({
+                anchorXUnits: 'pixels', // pixels fraction
+                anchorYUnits: 'pixels', // pixels fraction
+                anchor: symbol[4],
+                size: [width, height],
+                offset: [0, 0],
+                img: canvas,
+                imgSize: [width, height],   
+                scale: 1,
+            }),
+        }),
+        new ol.style.Style({
             text: new ol.style.Text({
-                font: '18px Calibri,sans-serif',
-                fill: new ol.style.Fill({ color: '#000' }),
-                stroke: new ol.style.Stroke({
-                    color: '#fff', width: 2
-                }),
-                // get the text from the feature - `this` is ol.Feature
-                // and show only under certain resolution
-                text: marker.title // map.getView().getZoom() > 12 ? marker.text : ''
+                text: marker.title,                 
+                offsetY: -height / 2,
+                offsetX: -arrowWidth,
+                textAlign: "left",
+                opacity: 1,
+                scale: 0.75,
+                font: font,
+                fill: new ol.style.Fill({
+                    color: "#444444"
+                })
             })
         })
     ];
@@ -109,7 +159,7 @@ function AwesomeStyle(marker) {
             })
         }),
         new ol.style.Style({
-            text: new ol.style.Text({                
+            text: new ol.style.Text({
                 text: String.fromCodePoint(marker.icon),
                 offsetY: -22,
                 opacity: 1,
@@ -129,22 +179,16 @@ export function Markers(markers) {
     source.clear();
 
     markers.forEach((marker) => {
-        var feature = new ol.Feature();
+        var feature = new ol.Feature({
+            geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates))
+        });
 
-        //feature.setGeometry({
-        //    geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)),
-        //    name: marker.type
-        //});
-
-        feature.setGeometry(new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)));
-        //feature.setGeometryName(marker.type);
-        
         switch (marker.type) {
             case "Pin":
                 feature.setStyle(PinStyle(marker));
                 break;
 
-            case "Flag":                
+            case "Flag": 
                 feature.setStyle(FlagStyle(marker));
                 break;
 
