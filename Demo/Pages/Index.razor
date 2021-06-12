@@ -1,6 +1,6 @@
 ﻿@page "/"
 
-<h1>TeraWord OpenLayers <span class="fa fa-camera"></span></h1>
+<h1>TeraWord OpenLayers @(typeof(TeraWord.Blazor.OpenLayers.Map).Assembly.GetName().Version.ToString(3))</h1>
 
 <div style="border:1px solid silver;height:640px;">
     <Map @ref=Map Center=Center Attributions="Demo by <a href='https://www.teraword.net'><b>TeraWord</b></a>" />
