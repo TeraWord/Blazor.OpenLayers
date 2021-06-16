@@ -23,13 +23,20 @@ namespace TeraWord.Blazor.OpenLayers
 
         [Parameter] public ObservableCollection<object> Markers { get; set; }
 
-        private string Div { get; set; }
+        [Parameter] public bool ShowPopup { get; set; }
 
-        private IJSObjectReference Module;
+        [Parameter] public string PopupID { get; set; }
+
+        private string MapID { get; set; }
+
+        private string InternalPopupID { get; set; }
+
+        private IJSObjectReference Module { get; set; }
 
         public Map()
         {
-            Div = Guid.NewGuid().ToString();            
+            MapID = Guid.NewGuid().ToString();      
+            InternalPopupID = Guid.NewGuid().ToString();
         }
 
         protected override void OnInitialized()
@@ -50,7 +57,9 @@ namespace TeraWord.Blazor.OpenLayers
             {
                 Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/teraword.blazor.openlayers/ol.js");
 
-                if (Module is not null) await Module.InvokeVoidAsync("Init", Div, Center, Zoom, Markers, Attributions);
+                var popupID = string.IsNullOrWhiteSpace(PopupID) ? InternalPopupID : PopupID; 
+
+                if (Module is not null) await Module.InvokeVoidAsync("Init", MapID, popupID, Center, Zoom, Markers, Attributions);
             }     
         }
 

@@ -14,8 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.6" />
-    <PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="5.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.7" />
+    <PackageReference Include="Microsoft.JSInterop.WebAssembly" Version="5.0.7" />
   </ItemGroup>
 
   <ItemGroup>

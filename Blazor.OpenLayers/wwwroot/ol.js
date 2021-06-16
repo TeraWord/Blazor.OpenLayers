@@ -1,7 +1,7 @@
 ﻿var _Map;
 var _Markers;
 
-export function Init(div, center, zoom, markers, attributions) {
+export function Init(mapID, popupID, center, zoom, markers, attributions) {
     _Map = new ol.Map({
         layers: [
             new ol.layer.Tile({
@@ -10,7 +10,7 @@ export function Init(div, center, zoom, markers, attributions) {
                 })
             })
         ],
-        target: div,
+        target: mapID,
         view: new ol.View({
             center: ol.proj.fromLonLat(center.coordinates),
             zoom: zoom
@@ -23,6 +23,20 @@ export function Init(div, center, zoom, markers, attributions) {
 
     _Map.addLayer(_Markers);
 
+    var popupElement = document.getElementById(popupID);
+
+    var popup = new ol.Overlay({
+        element: popupElement,
+        positioning: 'bottom-center',
+        stopEvent: false,
+        offset: [0, -50],
+    });
+
+    _Map.addOverlay(popup);
+
+    _Map.on('click', function (evt) { OnMapClick(evt, popup, popupElement) });
+    _Map.on('pointermove', function (evt) { OnMapPointerMove(evt, popupElement) });
+
     Markers(markers);
 }
 
@@ -33,6 +47,39 @@ export function Center(point) {
 
 export function Zoom(zoom) {
     _Map.getView().setZoom(zoom);
+}
+
+function OnMapClick(evt, popup, element) {
+    var feature = _Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
+
+    if (feature) {
+        var coordinates = feature.getGeometry().getCoordinates();
+
+        popup.setPosition(coordinates);
+
+        $(element).popover({
+            placement: 'top',
+            html: true,
+            title: feature.get("title"),
+            content: feature.get('content'),
+        });
+
+        $(element).popover('show');
+    } else {
+        $(element).popover('dispose');
+    }
+}
+
+function OnMapPointerMove(evt, element) {
+    if (evt.dragging) {
+        $(element).popover('dispose');
+        return;
+    }
+
+    //var pixel = _Map.getEventPixel(evt.originalEvent);
+    //var hit = _Map.hasFeatureAtPixel(pixel);
+
+    //_Map.getTarget().style.cursor = hit ? 'pointer' : '';
 }
 
 function PinStyle(marker) {
@@ -180,7 +227,9 @@ export function Markers(markers) {
 
     markers.forEach((marker) => {
         var feature = new ol.Feature({
-            geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates))
+            geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)),
+            title: marker.title,
+            content: marker.content
         });
 
         switch (marker.type) {

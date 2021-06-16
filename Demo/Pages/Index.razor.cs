@@ -78,18 +78,28 @@ namespace Demo.Pages
         private void OnAwesomeClick(dynamic e)
         {
             var icons = new int[] { 0xF29A, 0xF5A7, 0xF0F0, 0xF48E };
+
             var colors = new string[] {
                 "#990000", "#009900", "#000099",
                 "#997700", "#009977", "#770099",
                 "#990077", "#779900", "#007799",
             };
 
+            var titles = new string[] {
+                "Uno", "Due", "Tre",
+                "Quattro", "Cinque", "Sei",
+                "Sette Otto", "Nove Dieci"
+            };
+
             var point = NewPoint(Center);
+            var color = colors[rnd.Next(colors.Length)];
 
             var marker = new MarkerAwesome(point)
             {
+                Title = titles[rnd.Next(titles.Length)],
+                Content = $"<b>Colore:</b> {color}",
                 Icon = icons[rnd.Next(icons.Length)],
-                BackgroundColor = colors[rnd.Next(colors.Length)]
+                BackgroundColor = color,
             };
 
             Map.Markers.Add(marker);
