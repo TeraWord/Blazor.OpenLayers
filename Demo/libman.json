@@ -15,8 +15,13 @@
       "destination": "wwwroot/lib/font-awesome/"
     },
     {
-      "library": "twitter-bootstrap@5.0.1",
-      "destination": "wwwroot/lib/twitter-bootstrap/"
+      "provider": "jsdelivr",
+      "library": "bootstrap@5.0.1",
+      "destination": "wwwroot/lib/bootstrap/",
+      "files": [
+        "dist/css/bootstrap.min.css",
+        "dist/js/bootstrap.bundle.min.js"
+      ]
     }
   ]
 }

@@ -49,7 +49,39 @@ export function Zoom(zoom) {
     _Map.getView().setZoom(zoom);
 }
 
+export function Markers(markers) {
+    var source = _Markers.getSource();
+
+    source.clear();
+
+    markers.forEach((marker) => {
+        var feature = new ol.Feature({
+            geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)),
+            title: marker.title,
+            content: marker.content
+        });
+
+        switch (marker.type) {
+            case "Pin":
+                feature.setStyle(PinStyle(marker));
+                break;
+
+            case "Flag":
+                feature.setStyle(FlagStyle(marker));
+                break;
+
+            case "Awesome":
+                feature.setStyle(AwesomeStyle(marker));
+                break;
+        }
+
+        source.addFeature(feature);
+    });
+}
+
 function OnMapClick(evt, popup, element) {
+    $(element).popover('dispose');
+
     var feature = _Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
 
     if (feature) {
@@ -218,34 +250,4 @@ function AwesomeStyle(marker) {
             })
         })
     ];
-}
-
-export function Markers(markers) {
-    var source = _Markers.getSource();
-
-    source.clear();
-
-    markers.forEach((marker) => {
-        var feature = new ol.Feature({
-            geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)),
-            title: marker.title,
-            content: marker.content
-        });
-
-        switch (marker.type) {
-            case "Pin":
-                feature.setStyle(PinStyle(marker));
-                break;
-
-            case "Flag": 
-                feature.setStyle(FlagStyle(marker));
-                break;
-
-            case "Awesome":
-                feature.setStyle(AwesomeStyle(marker));
-                break;
-        }
-
-        source.addFeature(feature);
-    });
 }
