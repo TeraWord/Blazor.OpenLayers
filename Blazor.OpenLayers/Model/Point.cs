@@ -31,5 +31,28 @@ namespace TeraWord.Blazor.OpenLayers
         /// </summary>
         public double[] Coordinates { get => _coordinates; set => _coordinates = value; }
         private double[] _coordinates = new double[2] { 0, 0 };
+
+        /// <summary>
+        /// Distance in kilometers
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public double DistanceTo(Point target, int decimals = 2)
+        {
+            var baseRad = Math.PI * Latitude / 180;
+            var targetRad = Math.PI * target.Latitude / 180;
+            var theta = Longitude - target.Longitude;
+            var thetaRad = Math.PI * theta / 180;
+
+            double dist =
+                Math.Sin(baseRad) * Math.Sin(targetRad) + Math.Cos(baseRad) *
+                Math.Cos(targetRad) * Math.Cos(thetaRad);
+            dist = Math.Acos(dist);
+
+            dist = dist * 180 / Math.PI;
+            dist = dist * 60 * 1.1515 * 1.609344;
+
+            return Math.Round(dist, decimals);
+        }
     }
 }

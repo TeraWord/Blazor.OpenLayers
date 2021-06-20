@@ -12,8 +12,6 @@ namespace Demo.Pages
 
         private Map Map { get; set; }
 
-        private Map Map2 { get; set; }
-
         private static Random rnd = new();
 
         public Point NewPoint(Point around, double delta = 0.05)
@@ -27,10 +25,14 @@ namespace Demo.Pages
 
         public Marker NewPin(Point around, string color, double delta = 0.05)
         {
-            return new MarkerPin
+            var point = new Point
             {
                 Latitude = around.Latitude + (rnd.NextDouble() - 0.5) * delta,
-                Longitude = around.Longitude + (rnd.NextDouble() - 0.5) * delta,
+                Longitude = around.Longitude + (rnd.NextDouble() - 0.5) * delta
+            };
+
+            return new MarkerPin(point)
+            {               
                 Color = color
             };
         }
@@ -71,21 +73,28 @@ namespace Demo.Pages
                 "|!£$%&/()=?^"
             };
 
-
             //point = new Point(39.215704, 9.109290); // Cagliari incroco via Roma - via Sassari
 
             Map.Markers.Add(new MarkerFlag(point, testi[rnd.Next(testi.Length)]));
         }
 
+        private string NewColor
+        {
+            get
+            {
+                var colors = new string[] {
+                    "#990000", "#009900", "#000099",
+                    "#997700", "#009977", "#770099",
+                    "#990077", "#779900", "#007799",
+                };
+
+                return colors[rnd.Next(colors.Length)];
+            }
+        }
+
         private void OnAwesomeClick(dynamic e)
         {
             var icons = new int[] { 0xF29A, 0xF5A7, 0xF0F0, 0xF48E };
-
-            var colors = new string[] {
-                "#990000", "#009900", "#000099",
-                "#997700", "#009977", "#770099",
-                "#990077", "#779900", "#007799",
-            };
 
             var titles = new string[] {
                 "Uno", "Due", "Tre",
@@ -94,7 +103,7 @@ namespace Demo.Pages
             };
 
             var point = NewPoint(Center);
-            var color = colors[rnd.Next(colors.Length)];
+            var color = NewColor;
 
             var marker = new MarkerAwesome(point)
             {
@@ -104,10 +113,42 @@ namespace Demo.Pages
                 BackgroundColor = color,
             };
 
-            if(rnd.Next(2) % 2 == 0)
-                Map.Markers.Add(marker);
-            else
-                Map2.Markers.Add(marker);
+            Map.Markers.Add(marker);
+        }
+
+        private void OnLineClick(dynamic e)
+        {
+            var a = NewPoint(Center);
+            var b = NewPoint(Center);
+
+            var line = new Line(a, b);
+            var color = NewColor;
+
+            line.Label = $"{a.DistanceTo(b)} km";
+            line.Width = 4;
+            line.TextScale = 1.5;
+            line.BackgroundColor = color;
+            
+            Map.Lines.Add(line);
+
+            var ma = new MarkerAwesome(a)
+            {
+                Title = "A",
+                Content = $"<b>Punto:</b> A",
+                Icon = 0x41,
+                BackgroundColor = color,
+            };
+
+            var mb = new MarkerAwesome(b)
+            {
+                Title = "B",
+                Content = $"<b>Punto:</b> B",
+                Icon = 0x42,
+                BackgroundColor = color,
+            };
+
+            Map.Markers.Add(ma);
+            Map.Markers.Add(mb);
         }
     }
 }

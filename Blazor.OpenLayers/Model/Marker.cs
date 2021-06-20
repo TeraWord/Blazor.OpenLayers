@@ -7,16 +7,12 @@ using System.Threading.Tasks;
 
 namespace TeraWord.Blazor.OpenLayers
 { 
-    public class Marker : Point
+    public class Marker : Feature
     {
         public Marker() { }
 
-        public Marker(Point point) : base(point) { }
+        public Marker(Point point) { Point = point; }
 
-        public string Type { get; internal set; }
-
-        public string Title { get; set; } = "";
-
-        public string Content { get; set; } = "";
+        public Point Point { get; set; } = new();
     }
 }

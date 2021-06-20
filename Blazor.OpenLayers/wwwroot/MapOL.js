@@ -5,20 +5,24 @@ export function MapOLInit(mapID, popupID, center, zoom, markers, attributions) {
 }
 
 export function MapOLCenter(mapID, point) {
-    _MapOL[mapID].Map.getView().setCenter(ol.proj.fromLonLat(point.coordinates));
+    _MapOL[mapID].setCenter(point);
 }
 
 export function MapOLZoom(mapID, zoom) {
-    _MapOL[mapID].Map.getView().setZoom(zoom);
+    _MapOL[mapID].setZoom(zoom);
 }
 
 export function MapOLMarkers(mapID, markers) {
-    _MapOL[mapID].SetMarkers(markers);
+    _MapOL[mapID].setMarkers(markers);
+}
+
+export function MapOLLines(mapID, lines) {
+    _MapOL[mapID].setLines(lines);
 }
 
 // --- MapOL ----------------------------------------------------------------------------//
 
-function MapOL(mapID, popupID, center, zoom, markers, attributions) {
+function MapOL(mapID, popupID, center, zoom, markers, lines, attributions) {
     this.Map = new ol.Map({
         layers: [
             new ol.layer.Tile({
@@ -29,16 +33,22 @@ function MapOL(mapID, popupID, center, zoom, markers, attributions) {
         ],
         target: mapID,
         view: new ol.View({
-            center: ol.proj.fromLonLat(center.coordinates),
+            center: ol.proj.transform(center.coordinates, 'EPSG:4326', 'EPSG:3857'),
             zoom: zoom
         })
     });
+
+    this.Lines = new ol.layer.Vector({
+        source: new ol.source.Vector()
+    });
+
+    this.Map.addLayer(this.Lines);
 
     this.Markers = new ol.layer.Vector({
         source: new ol.source.Vector()
     });
 
-    this.Map.addLayer(this.Markers);
+    this.Map.addLayer(this.Markers);    
 
     var popupElement = document.getElementById(popupID);
 
@@ -53,35 +63,36 @@ function MapOL(mapID, popupID, center, zoom, markers, attributions) {
 
     var that = this;
 
-    this.Map.on('click', function (evt) { that.OnMapClick(evt, popup, popupElement) });
-    this.Map.on('pointermove', function (evt) { that.OnMapPointerMove(evt, popupElement) });
+    this.Map.on('click', function (evt) { that.onMapClick(evt, popup, popupElement) });
+    this.Map.on('pointermove', function (evt) { that.onMapPointerMove(evt, popupElement) });
 
-    this.SetMarkers(markers);
+    this.setMarkers(markers);
+    this.setLines(lines);
 }
 
-MapOL.prototype.SetMarkers = function (markers) {
+MapOL.prototype.setMarkers = function (markers) {
     var source = this.Markers.getSource();
 
     source.clear();
 
     markers.forEach((marker) => {
         var feature = new ol.Feature({
-            geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coordinates)),
+            geometry: new ol.geom.Point(ol.proj.transform(marker.point.coordinates, 'EPSG:4326', 'EPSG:3857')),
             title: marker.title,
             content: marker.content
         });
 
         switch (marker.type) {
-            case "Pin":
-                feature.setStyle(this.PinStyle(marker));
+            case "MarkerPin":
+                feature.setStyle(this.pinStyle(marker));
                 break;
 
-            case "Flag":
-                feature.setStyle(this.FlagStyle(marker));
+            case "MarkerFlag":
+                feature.setStyle(this.flagStyle(marker));
                 break;
 
-            case "Awesome":
-                feature.setStyle(this.AwesomeStyle(marker));
+            case "MarkerAwesome":
+                feature.setStyle(this.awesomeStyle(marker));
                 break;
         }
 
@@ -89,7 +100,43 @@ MapOL.prototype.SetMarkers = function (markers) {
     });
 }
 
-MapOL.prototype.OnMapClick = function (evt, popup, element) {
+MapOL.prototype.setLines = function (lines) {
+    var source = this.Lines.getSource();
+
+    source.clear();
+
+    if (!lines) return;
+
+    lines.forEach((line) => {
+        for (var i = 0; i < line.coordinates.length; i++) {
+            line.coordinates[i] = ol.proj.transform(line.coordinates[i], 'EPSG:4326', 'EPSG:3857');
+        }
+
+        var feature = new ol.Feature({
+            geometry: new ol.geom.LineString(line.coordinates),
+            title: line.title,
+            content: line.content
+        });
+
+        switch (line.type) {
+            case "Line":
+                feature.setStyle(this.lineStyle(line));
+                break;
+        }
+
+        source.addFeature(feature);
+    });
+}
+
+MapOL.prototype.setZoom = function (zoom) {
+    this.Map.getView().setZoom(zoom);
+}
+
+MapOL.prototype.setCenter = function (point) {
+    this.Map.getView().setCenter(ol.proj.transform(point.coordinates, 'EPSG:4326', 'EPSG:3857'));
+}
+
+MapOL.prototype.onMapClick = function (evt, popup, element) {
     $(element).popover('dispose');
 
     var feature = this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
@@ -112,7 +159,7 @@ MapOL.prototype.OnMapClick = function (evt, popup, element) {
     }
 }
 
-MapOL.prototype.OnMapPointerMove = function (evt, element) {
+MapOL.prototype.onMapPointerMove = function (evt, element) {
     if (evt.dragging) {
         $(element).popover('dispose');
         return;
@@ -124,7 +171,7 @@ MapOL.prototype.OnMapPointerMove = function (evt, element) {
     //_Map.getTarget().style.cursor = hit ? 'pointer' : '';
 }
 
-MapOL.prototype.PinStyle = function (marker) {
+MapOL.prototype.pinStyle = function (marker) {
     return [
         new ol.style.Style({
             image: new ol.style.Icon({
@@ -142,7 +189,7 @@ MapOL.prototype.PinStyle = function (marker) {
     ];
 }
 
-MapOL.prototype.FlagStyle = function (marker) {
+MapOL.prototype.flagStyle = function (marker) {
     var width = 30;
     var height = 30;
     var font = 'bold 18px Arial';
@@ -217,7 +264,7 @@ MapOL.prototype.FlagStyle = function (marker) {
     ];
 }
 
-MapOL.prototype.AwesomeStyle = function (marker) {
+MapOL.prototype.awesomeStyle = function (marker) {
     return [
         new ol.style.Style({
             image: new ol.style.Icon({
@@ -258,6 +305,28 @@ MapOL.prototype.AwesomeStyle = function (marker) {
                     color: marker.color
                 })
             })
+        })
+    ];
+}
+
+MapOL.prototype.lineStyle = function (line) {
+    return [
+        new ol.style.Style({
+            //fill: new ol.style.Fill({ color: line.color, width: line.width }),
+            stroke: new ol.style.Stroke({ color: line.backgroundColor, width: line.width })
+        }),
+        new ol.style.Style({
+            text: new ol.style.Text({
+                text: line.label,
+                placement: "line",
+                opacity: 1,
+                scale: line.textScale,
+                fill: new ol.style.Fill({
+                    color: line.color
+                }),
+                stroke: new ol.style.Stroke({ color: line.backgroundColor, width: line.width })
+            }),
+           
         })
     ];
 }

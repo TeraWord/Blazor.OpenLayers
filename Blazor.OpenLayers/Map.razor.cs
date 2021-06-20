@@ -23,6 +23,8 @@ namespace TeraWord.Blazor.OpenLayers
 
         [Parameter] public ObservableCollection<object> Markers { get; set; }
 
+        [Parameter] public ObservableCollection<Line> Lines { get; set; }
+
         [Parameter] public bool ShowPopup { get; set; }
 
         [Parameter] public string PopupID { get; set; }
@@ -45,8 +47,10 @@ namespace TeraWord.Blazor.OpenLayers
 
             Center ??= new Point { Latitude = 39.2236, Longitude = 9.1181 };
             Markers ??= new ObservableCollection<object>();
+            Lines ??= new ObservableCollection<Line>();
 
             Markers.CollectionChanged += Markers_CollectionChanged;
+            Lines.CollectionChanged += Lines_CollectionChanged;
         }
         
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -59,7 +63,7 @@ namespace TeraWord.Blazor.OpenLayers
 
                 var popupID = string.IsNullOrWhiteSpace(PopupID) ? InternalPopupID : PopupID; 
 
-                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Center, Zoom, Markers, Attributions);
+                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Center, Zoom, Markers, Lines, Attributions);
             }     
         }
 
@@ -68,9 +72,19 @@ namespace TeraWord.Blazor.OpenLayers
             SetMarkers(Markers);
         }
 
+        private void Lines_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            SetLines(Lines);
+        }
+
         private async void SetMarkers(ObservableCollection<object> markers)
         {
             if (Module is not null) await Module.InvokeVoidAsync("MapOLMarkers", MapID, markers);
+        }
+
+        private async void SetLines(ObservableCollection<Line> lines)
+        {
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLLines", MapID, lines);
         }
 
         private async void SetCenter(Point center)
