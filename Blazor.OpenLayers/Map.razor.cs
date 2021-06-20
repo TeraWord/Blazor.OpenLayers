@@ -55,11 +55,11 @@ namespace TeraWord.Blazor.OpenLayers
 
             if (firstRender)
             {
-                Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/teraword.blazor.openlayers/ol.js");
+                Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/teraword.blazor.openlayers/MapOL.js");
 
                 var popupID = string.IsNullOrWhiteSpace(PopupID) ? InternalPopupID : PopupID; 
 
-                if (Module is not null) await Module.InvokeVoidAsync("Init", MapID, popupID, Center, Zoom, Markers, Attributions);
+                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Center, Zoom, Markers, Attributions);
             }     
         }
 
@@ -70,22 +70,17 @@ namespace TeraWord.Blazor.OpenLayers
 
         private async void SetMarkers(ObservableCollection<object> markers)
         {
-
-#if DEBUG
-            System.IO.File.WriteAllText("D:/Tests/Blazor.OpenLayers/Markers.json", System.Text.Json.JsonSerializer.Serialize(this, new() { WriteIndented = true }));
-#endif
-
-            if (Module is not null) await Module.InvokeVoidAsync("Markers", markers);
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLMarkers", MapID, markers);
         }
 
         private async void SetCenter(Point center)
         {
-            if (Module is not null) await Module.InvokeVoidAsync("Center", center);
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLCenter", MapID, center);
         }
 
         private async void SetZoom(double zoom)
         {
-            if (Module is not null) await Module.InvokeVoidAsync("Zoom", zoom);
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLZoom", MapID, zoom);
         }
 
         protected virtual async ValueTask DisposeAsyncCore()

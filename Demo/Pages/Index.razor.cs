@@ -12,6 +12,8 @@ namespace Demo.Pages
 
         private Map Map { get; set; }
 
+        private Map Map2 { get; set; }
+
         private static Random rnd = new();
 
         public Point NewPoint(Point around, double delta = 0.05)
@@ -102,7 +104,10 @@ namespace Demo.Pages
                 BackgroundColor = color,
             };
 
-            Map.Markers.Add(marker);
+            if(rnd.Next(2) % 2 == 0)
+                Map.Markers.Add(marker);
+            else
+                Map2.Markers.Add(marker);
         }
     }
 }

@@ -1,8 +1,25 @@
-﻿var _Map;
-var _Markers;
+﻿var _MapOL = new Array();
 
-export function Init(mapID, popupID, center, zoom, markers, attributions) {
-    _Map = new ol.Map({
+export function MapOLInit(mapID, popupID, center, zoom, markers, attributions) {
+    _MapOL[mapID] = new MapOL(mapID, popupID, center, zoom, markers, attributions);
+}
+
+export function MapOLCenter(mapID, point) {
+    _MapOL[mapID].Map.getView().setCenter(ol.proj.fromLonLat(point.coordinates));
+}
+
+export function MapOLZoom(mapID, zoom) {
+    _MapOL[mapID].Map.getView().setZoom(zoom);
+}
+
+export function MapOLMarkers(mapID, markers) {
+    _MapOL[mapID].SetMarkers(markers);
+}
+
+// --- MapOL ----------------------------------------------------------------------------//
+
+function MapOL(mapID, popupID, center, zoom, markers, attributions) {
+    this.Map = new ol.Map({
         layers: [
             new ol.layer.Tile({
                 source: new ol.source.OSM({
@@ -17,11 +34,11 @@ export function Init(mapID, popupID, center, zoom, markers, attributions) {
         })
     });
 
-    _Markers = new ol.layer.Vector({
+    this.Markers = new ol.layer.Vector({
         source: new ol.source.Vector()
     });
 
-    _Map.addLayer(_Markers);
+    this.Map.addLayer(this.Markers);
 
     var popupElement = document.getElementById(popupID);
 
@@ -32,25 +49,18 @@ export function Init(mapID, popupID, center, zoom, markers, attributions) {
         offset: [0, -50],
     });
 
-    _Map.addOverlay(popup);
+    this.Map.addOverlay(popup);
 
-    _Map.on('click', function (evt) { OnMapClick(evt, popup, popupElement) });
-    _Map.on('pointermove', function (evt) { OnMapPointerMove(evt, popupElement) });
+    var that = this;
 
-    Markers(markers);
+    this.Map.on('click', function (evt) { that.OnMapClick(evt, popup, popupElement) });
+    this.Map.on('pointermove', function (evt) { that.OnMapPointerMove(evt, popupElement) });
+
+    this.SetMarkers(markers);
 }
 
-export function Center(point) {
-    //_Map.getView().fit(bounds, map.getSize());
-    _Map.getView().setCenter(ol.proj.fromLonLat(point.coordinates));
-}
-
-export function Zoom(zoom) {
-    _Map.getView().setZoom(zoom);
-}
-
-export function Markers(markers) {
-    var source = _Markers.getSource();
+MapOL.prototype.SetMarkers = function (markers) {
+    var source = this.Markers.getSource();
 
     source.clear();
 
@@ -63,15 +73,15 @@ export function Markers(markers) {
 
         switch (marker.type) {
             case "Pin":
-                feature.setStyle(PinStyle(marker));
+                feature.setStyle(this.PinStyle(marker));
                 break;
 
             case "Flag":
-                feature.setStyle(FlagStyle(marker));
+                feature.setStyle(this.FlagStyle(marker));
                 break;
 
             case "Awesome":
-                feature.setStyle(AwesomeStyle(marker));
+                feature.setStyle(this.AwesomeStyle(marker));
                 break;
         }
 
@@ -79,10 +89,10 @@ export function Markers(markers) {
     });
 }
 
-function OnMapClick(evt, popup, element) {
+MapOL.prototype.OnMapClick = function (evt, popup, element) {
     $(element).popover('dispose');
 
-    var feature = _Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
+    var feature = this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
 
     if (feature) {
         var coordinates = feature.getGeometry().getCoordinates();
@@ -102,7 +112,7 @@ function OnMapClick(evt, popup, element) {
     }
 }
 
-function OnMapPointerMove(evt, element) {
+MapOL.prototype.OnMapPointerMove = function (evt, element) {
     if (evt.dragging) {
         $(element).popover('dispose');
         return;
@@ -114,7 +124,7 @@ function OnMapPointerMove(evt, element) {
     //_Map.getTarget().style.cursor = hit ? 'pointer' : '';
 }
 
-function PinStyle(marker) {
+MapOL.prototype.PinStyle = function (marker) {
     return [
         new ol.style.Style({
             image: new ol.style.Icon({
@@ -132,7 +142,7 @@ function PinStyle(marker) {
     ];
 }
 
-function FlagStyle(marker) {
+MapOL.prototype.FlagStyle = function (marker) {
     var width = 30;
     var height = 30;
     var font = 'bold 18px Arial';
@@ -207,7 +217,7 @@ function FlagStyle(marker) {
     ];
 }
 
-function AwesomeStyle(marker) {
+MapOL.prototype.AwesomeStyle = function (marker) {
     return [
         new ol.style.Style({
             image: new ol.style.Icon({
