@@ -16,13 +16,13 @@ export function MapOLMarkers(mapID, markers) {
     _MapOL[mapID].setMarkers(markers);
 }
 
-export function MapOLLines(mapID, lines) {
-    _MapOL[mapID].setLines(lines);
+export function MapOLGeometries(mapID, geometries) {
+    _MapOL[mapID].setGeometries(geometries);
 }
 
 // --- MapOL ----------------------------------------------------------------------------//
 
-function MapOL(mapID, popupID, center, zoom, markers, lines, attributions) {
+function MapOL(mapID, popupID, center, zoom, markers, geometries, attributions) {
     this.Map = new ol.Map({
         layers: [
             new ol.layer.Tile({
@@ -38,11 +38,11 @@ function MapOL(mapID, popupID, center, zoom, markers, lines, attributions) {
         })
     });
 
-    this.Lines = new ol.layer.Vector({
+    this.Geometries = new ol.layer.Vector({
         source: new ol.source.Vector()
     });
 
-    this.Map.addLayer(this.Lines);
+    this.Map.addLayer(this.Geometries);
 
     this.Markers = new ol.layer.Vector({
         source: new ol.source.Vector()
@@ -67,7 +67,7 @@ function MapOL(mapID, popupID, center, zoom, markers, lines, attributions) {
     this.Map.on('pointermove', function (evt) { that.onMapPointerMove(evt, popupElement) });
 
     this.setMarkers(markers);
-    this.setLines(lines);
+    this.setGeometries(geometries);
 }
 
 MapOL.prototype.setMarkers = function (markers) {
@@ -100,27 +100,45 @@ MapOL.prototype.setMarkers = function (markers) {
     });
 }
 
-MapOL.prototype.setLines = function (lines) {
-    var source = this.Lines.getSource();
+MapOL.prototype.setGeometries = function (geometries) {
+    var source = this.Geometries.getSource();
 
     source.clear();
 
-    if (!lines) return;
+    if (!geometries) return;
 
-    lines.forEach((line) => {
-        for (var i = 0; i < line.coordinates.length; i++) {
-            line.coordinates[i] = ol.proj.transform(line.coordinates[i], 'EPSG:4326', 'EPSG:3857');
+    geometries.forEach((geometry) => {
+        for (var i = 0; i < geometry.coordinates.length; i++) {
+            geometry.coordinates[i] = ol.proj.transform(geometry.coordinates[i], 'EPSG:4326', 'EPSG:3857');
         }
 
-        var feature = new ol.Feature({
-            geometry: new ol.geom.LineString(line.coordinates),
-            title: line.title,
-            content: line.content
-        });
+        var feature;
+        
+        switch (geometry.type) {
+            case "GeometryLine":
+                feature = new ol.Feature({
+                    geometry: new ol.geom.LineString(geometry.coordinates),
+                    title: geometry.title,
+                    content: geometry.content
+                });
+                break;
 
-        switch (line.type) {
-            case "Line":
-                feature.setStyle(this.lineStyle(line));
+            case "GeometryCircle":
+                feature = new ol.Feature({
+                    geometry: new ol.geom.Circle(geometry.coordinates[0], geometry.radius),
+                    title: geometry.title,
+                    content: geometry.content
+                });
+                break;
+        }
+
+        switch (geometry.type) {
+            case "GeometryLine":
+                feature.setStyle(this.lineStyle(geometry));
+                break;
+
+            case "GeometryCircle":
+                feature.setStyle(this.circleStyle(geometry));
                 break;
         }
 
@@ -328,5 +346,27 @@ MapOL.prototype.lineStyle = function (line) {
             }),
            
         })
+    ];
+}
+
+MapOL.prototype.circleStyle = function (circle) {
+    return [
+        new ol.style.Style({
+            fill: new ol.style.Fill({ color: circle.color }),
+            stroke: new ol.style.Stroke({ color: circle.backgroundColor, width: circle.width })
+        }),
+        //new ol.style.Style({
+        //    text: new ol.style.Text({
+        //        text: circle.label,
+        //        placement: "line",
+        //        opacity: 1,
+        //        scale: circle.textScale,
+        //        fill: new ol.style.Fill({
+        //            color: circle.color
+        //        }),
+        //        stroke: new ol.style.Stroke({ color: circle.backgroundColor, width: circle.width })
+        //    }),
+
+        //})
     ];
 }

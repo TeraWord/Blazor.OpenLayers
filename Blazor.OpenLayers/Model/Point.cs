@@ -54,5 +54,34 @@ namespace TeraWord.Blazor.OpenLayers
 
             return Math.Round(dist, decimals);
         }
+
+        /// <summary>
+        /// Calcola un punto distante in km
+        /// </summary>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        public Point PointByDistance(double distance)
+        {
+            double rad = 64.10;
+           
+            rad *= Math.PI / 180;
+
+            double angDist = 0.343 / 6371;
+            double latitude = 3.170620;
+            double longitude = 103.151279;
+
+            latitude *= Math.PI / 180;
+            longitude *= Math.PI / 180;
+
+            double lat2 = Math.Asin(Math.Sin(latitude) * Math.Cos(angDist) + Math.Cos(latitude) * Math.Sin(angDist) * Math.Cos(rad));
+            double forAtana = Math.Sin(rad) * Math.Sin(angDist) * Math.Cos(latitude);
+            double forAtanb = Math.Cos(angDist) - Math.Sin(latitude) * Math.Sin(lat2);
+            double lon2 = longitude + Math.Atan2(forAtana, forAtanb);
+
+            lat2 *= 180 / Math.PI;
+            lon2 *= 180 / Math.PI;
+
+            return new Point(lat2, lon2);
+        }
     }
 }

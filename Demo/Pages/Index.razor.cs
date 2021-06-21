@@ -121,7 +121,7 @@ namespace Demo.Pages
             var a = NewPoint(Center);
             var b = NewPoint(Center);
 
-            var line = new Line(a, b);
+            var line = new GeometryLine(a, b);
             var color = NewColor;
 
             line.Label = $"{a.DistanceTo(b)} km";
@@ -129,7 +129,7 @@ namespace Demo.Pages
             line.TextScale = 1.5;
             line.BackgroundColor = color;
             
-            Map.Lines.Add(line);
+            Map.Geometries.Add(line);
 
             var ma = new MarkerAwesome(a)
             {
@@ -149,6 +149,28 @@ namespace Demo.Pages
 
             Map.Markers.Add(ma);
             Map.Markers.Add(mb);
+        }
+
+        private void OnCircleClick(dynamic e)
+        {
+            var a = NewPoint(Center);
+            var b = NewPoint(Center);
+
+            var line = new GeometryLine(a, b);
+            var color = NewColor;
+            var distance = a.DistanceTo(b);
+
+            line.Label = $"{distance} km";
+            line.Width = 4;
+            line.TextScale = 1.5;
+            line.BackgroundColor = color;
+
+            Map.Geometries.Add(line);
+
+            var circle = new GeometryCircle(a, distance);
+            circle.Color = "#0000BB11";
+            circle.BackgroundColor = "#0000BB66";
+            Map.Geometries.Add(circle);
         }
     }
 }
