@@ -14,5 +14,7 @@ namespace TeraWord.Blazor.OpenLayers
         public Marker(Point point) { Point = point; }
 
         public Point Point { get; set; } = new();
+
+        public int Icon { get; set; }
     }
 }

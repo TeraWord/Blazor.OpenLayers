@@ -1,7 +1,7 @@
 ﻿var _MapOL = new Array();
 
-export function MapOLInit(mapID, popupID, center, zoom, markers, attributions) {
-    _MapOL[mapID] = new MapOL(mapID, popupID, center, zoom, markers, attributions);
+export function MapOLInit(mapID, popupID, center, zoom, markers, geometries, attributions, instance) {
+    _MapOL[mapID] = new MapOL(mapID, popupID, center, zoom, markers, geometries, attributions, instance);
 }
 
 export function MapOLCenter(mapID, point) {
@@ -22,7 +22,9 @@ export function MapOLGeometries(mapID, geometries) {
 
 // --- MapOL ----------------------------------------------------------------------------//
 
-function MapOL(mapID, popupID, center, zoom, markers, geometries, attributions) {
+function MapOL(mapID, popupID, center, zoom, markers, geometries, attributions, instance) {
+    this.Instance = instance;
+
     this.Map = new ol.Map({
         layers: [
             new ol.layer.Tile({
@@ -82,6 +84,8 @@ MapOL.prototype.setMarkers = function (markers) {
             content: marker.content
         });
 
+        feature.marker = marker;
+
         switch (marker.type) {
             case "MarkerPin":
                 feature.setStyle(this.pinStyle(marker));
@@ -113,7 +117,7 @@ MapOL.prototype.setGeometries = function (geometries) {
         }
 
         var feature;
-        
+
         switch (geometry.type) {
             case "GeometryLine":
                 feature = new ol.Feature({
@@ -131,6 +135,8 @@ MapOL.prototype.setGeometries = function (geometries) {
                 });
                 break;
         }
+
+        feature.geometry = geometry;
 
         switch (geometry.type) {
             case "GeometryLine":
@@ -160,19 +166,36 @@ MapOL.prototype.onMapClick = function (evt, popup, element) {
     var feature = this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
 
     if (feature) {
-        var coordinates = feature.getGeometry().getCoordinates();
+        var title = feature.get("title");
+        var content = feature.get('content');
 
-        popup.setPosition(coordinates);
+        if (feature.marker != null) this.Instance.invokeMethodAsync('OnInternalMarkerClick', feature.marker);
+        if (feature.geometry != null) this.Instance.invokeMethodAsync('OnInternalGeometryClick', feature.geometry);
 
-        $(element).popover({
-            placement: 'top',
-            html: true,
-            title: feature.get("title"),
-            content: feature.get('content'),
-        });
+        if (title != "") {
+            var coordinates = feature.getGeometry().getCoordinates();
 
-        $(element).popover('show');
+            popup.setPosition(coordinates);
+
+            $(element).popover({
+                placement: 'top',
+                html: true,
+                title: title,
+                content: content,
+            });
+
+            $(element).popover('show');
+        }
+        else
+        {
+            $(element).popover('dispose');
+        }
     } else {
+        var coordinate = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326')
+        var point = { Latitude: coordinate[1], Longitude: coordinate[0] };
+
+        this.Instance.invokeMethodAsync('OnInternalClick', point);
+
         $(element).popover('dispose');
     }
 }

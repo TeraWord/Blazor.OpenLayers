@@ -14,9 +14,5 @@ namespace TeraWord.Blazor.OpenLayers
         public MarkerAwesome(Point point) : base(point) { }
 
         public MarkerAwesome(Point point, int icon) : base(point) { Icon = icon; }
-
-        public string BorderColor { get; set; } = "#FFFFFF";
-
-        public int Icon { get; set; }
     }
 }

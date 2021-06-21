@@ -13,8 +13,6 @@ namespace TeraWord.Blazor.OpenLayers
         public GeometryLine(params Point[] point)
         {
             Points = new List<Point>(point);
-        }
-
-        public int Width { get; set; } = 1;
+        } 
     }
 }

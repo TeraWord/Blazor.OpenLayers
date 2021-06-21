@@ -8,7 +8,7 @@ namespace TeraWord.Blazor.OpenLayers
 {
     public class Geometry : Feature
     {
-        public IEnumerable<Point> Points = new List<Point>();
+        public IEnumerable<Point> Points { get; set; } = new List<Point>();
          
         public IEnumerable<double[]> Coordinates { get => Points.Select(x => x.Coordinates); }
 

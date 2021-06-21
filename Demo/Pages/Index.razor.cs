@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TeraWord.Blazor.OpenLayers;
 
@@ -14,8 +15,10 @@ namespace Demo.Pages
 
         private static Random rnd = new();
 
-        public Point NewPoint(Point around, double delta = 0.05)
+        public Point NewPoint(double delta = 0.05)
         {
+            var around = Map.Center;
+
             return new Point
             {
                 Latitude = around.Latitude + (rnd.NextDouble() - 0.5) * delta,
@@ -23,8 +26,10 @@ namespace Demo.Pages
             };
         }
 
-        public Marker NewPin(Point around, string color, double delta = 0.05)
+        public Marker NewPin(string color, double delta = 0.05)
         {
+            var around = Map.Center;
+
             var point = new Point
             {
                 Latitude = around.Latitude + (rnd.NextDouble() - 0.5) * delta,
@@ -32,7 +37,7 @@ namespace Demo.Pages
             };
 
             return new MarkerPin(point)
-            {               
+            {
                 Color = color
             };
         }
@@ -57,18 +62,18 @@ namespace Demo.Pages
         private void OnPinClick(dynamic e)
         {
             var color = (rnd.Next(100) % 2) switch { 0 => "#FF0000", 1 => "#00FF00", _ => "#0000FF" };
-            Map.Markers.Add(NewPin(Center, color));
+            Map.Markers.Add(NewPin(color));
         }
 
         private void OnFlagClick(dynamic e)
         {
-            var point = NewPoint(Center);
-           
+            var point = NewPoint();
+
             var testi = new string[] {
-                "Ciao", 
-                "TeraWord", 
+                "Ciao",
+                "TeraWord",
                 "Mario Rossi",
-                
+
                 "Testo riempitivo nelle prove grafiche",
                 "|!£$%&/()=?^"
             };
@@ -102,7 +107,7 @@ namespace Demo.Pages
                 "Sette Otto", "Nove Dieci"
             };
 
-            var point = NewPoint(Center);
+            var point = NewPoint();
             var color = NewColor;
 
             var marker = new MarkerAwesome(point)
@@ -118,8 +123,8 @@ namespace Demo.Pages
 
         private void OnLineClick(dynamic e)
         {
-            var a = NewPoint(Center);
-            var b = NewPoint(Center);
+            var a = NewPoint();
+            var b = NewPoint();
 
             var line = new GeometryLine(a, b);
             var color = NewColor;
@@ -128,7 +133,7 @@ namespace Demo.Pages
             line.Width = 4;
             line.TextScale = 1.5;
             line.BackgroundColor = color;
-            
+
             Map.Geometries.Add(line);
 
             var ma = new MarkerAwesome(a)
@@ -153,8 +158,8 @@ namespace Demo.Pages
 
         private void OnCircleClick(dynamic e)
         {
-            var a = NewPoint(Center);
-            var b = NewPoint(Center);
+            var a = NewPoint();
+            var b = NewPoint();
 
             var line = new GeometryLine(a, b);
             var color = NewColor;
@@ -172,5 +177,23 @@ namespace Demo.Pages
             circle.BackgroundColor = "#0000BB66";
             Map.Geometries.Add(circle);
         }
+
+        private void OnMarkerClick(Marker marker)
+        {
+            ClickString = JsonSerializer.Serialize(marker, new JsonSerializerOptions { MaxDepth = 0, WriteIndented = true });
+        }
+
+        private void OnGeometryClick(Geometry geometry)
+        {
+            ClickString = JsonSerializer.Serialize(geometry, new JsonSerializerOptions { MaxDepth = 0, WriteIndented = true });
+        }
+
+        private void OnClick(Point point)
+        {
+            ClickString = JsonSerializer.Serialize(point, new JsonSerializerOptions { MaxDepth = 0, WriteIndented = true });
+            Map.SetCenter(point);
+        }
+
+        private string ClickString { get; set; }
     }
 }

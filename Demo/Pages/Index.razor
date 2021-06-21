@@ -3,7 +3,13 @@
 <h1><i class="fas fa-map"></i> TeraWord OpenLayers @(typeof(TeraWord.Blazor.OpenLayers.Map).Assembly.GetName().Version.ToString(3))</h1>
 
 <div style="border:1px solid silver;height:640px;">
-    <Map @ref=Map Center=Center PopupID="Popeye" Attributions="Demo by <a href='https://www.teraword.net'><b>TeraWord</b></a>" />
+    <Map @ref=Map 
+         PopupID="Popeye" 
+         Attributions="Demo by <a href='https://www.teraword.net'><b>TeraWord</b></a>"
+         OnMarkerClick=OnMarkerClick
+         OnGeometryClick=OnGeometryClick
+         OnClick=OnClick
+          />
 </div>
 
 <br />
@@ -16,3 +22,6 @@
 <button class="btn btn-primary" @onclick=OnCircleClick>circle</button>
 
 <div id="Popeye"></div> 
+
+<br />
+Click: @ClickString
