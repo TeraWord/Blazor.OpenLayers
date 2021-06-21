@@ -6,7 +6,7 @@
     <Product>OpenLayers</Product>
     <Authors>Marcello Marcellino</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
     <RootNamespace>TeraWord.Blazor.OpenLayers</RootNamespace>
     <AssemblyName>TeraWord.Blazor.OpenLayers</AssemblyName>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
