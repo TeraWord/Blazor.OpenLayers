@@ -12,6 +12,10 @@ export function MapOLZoom(mapID, zoom) {
     _MapOL[mapID].setZoom(zoom);
 }
 
+export function MapOLZoomToExtent(mapID, extent) {
+    _MapOL[mapID].setZoomToExtent(extent);
+}
+
 export function MapOLMarkers(mapID, markers) {
     _MapOL[mapID].setMarkers(markers);
 }
@@ -155,6 +159,22 @@ MapOL.prototype.setGeometries = function (geometries) {
 
 MapOL.prototype.setZoom = function (zoom) {
     this.Map.getView().setZoom(zoom);
+}
+
+MapOL.prototype.setZoomToExtent = function (extent) {
+    switch (extent) {
+        case "Markers":
+            var extent = this.Markers.getSource().getExtent();
+            if (extent[0] === Infinity) return;
+            this.Map.getView().fit(extent, this.Map.getSize());
+            break;
+
+        case "Geometries":
+            var extent = this.Geometries.getSource().getExtent();
+            if (extent[0] === Infinity) return;
+            this.Map.getView().fit(extent, this.Map.getSize());
+            break;
+    }
 }
 
 MapOL.prototype.setCenter = function (point) {
@@ -377,7 +397,7 @@ MapOL.prototype.circleStyle = function (circle) {
     return [
         new ol.style.Style({
             fill: new ol.style.Fill({ color: circle.color }),
-            stroke: new ol.style.Stroke({ color: circle.backgroundColor, width: circle.width })
+            stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.width })
         }),
         //new ol.style.Style({
         //    text: new ol.style.Text({
@@ -388,7 +408,7 @@ MapOL.prototype.circleStyle = function (circle) {
         //        fill: new ol.style.Fill({
         //            color: circle.color
         //        }),
-        //        stroke: new ol.style.Stroke({ color: circle.backgroundColor, width: circle.width })
+        //        stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.width })
         //    }),
 
         //})

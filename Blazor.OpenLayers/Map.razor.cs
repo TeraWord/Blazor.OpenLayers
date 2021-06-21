@@ -127,6 +127,11 @@ namespace TeraWord.Blazor.OpenLayers
             if (Module is not null) await Module.InvokeVoidAsync("MapOLZoom", MapID, zoom);
         }
 
+        public async void SetZoomToExtent(Extent extent)
+        {
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLZoomToExtent", MapID, extent.ToString());
+        }
+
         protected virtual async ValueTask DisposeAsyncCore()
         {
             await Task.CompletedTask;

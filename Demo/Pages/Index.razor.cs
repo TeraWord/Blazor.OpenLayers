@@ -166,7 +166,7 @@ namespace Demo.Pages
             var distance = a.DistanceTo(b);
 
             line.Label = $"{distance} km";
-            line.Width = 4;
+            line.Width = 2;
             line.TextScale = 1.5;
             line.BackgroundColor = color;
 
@@ -174,7 +174,7 @@ namespace Demo.Pages
 
             var circle = new GeometryCircle(a, distance);
             circle.Color = "#0000BB11";
-            circle.BackgroundColor = "#0000BB66";
+            circle.BorderColor = "#0000BB66";
             Map.Geometries.Add(circle);
         }
 
@@ -192,6 +192,16 @@ namespace Demo.Pages
         {
             ClickString = JsonSerializer.Serialize(point, new JsonSerializerOptions { MaxDepth = 0, WriteIndented = true });
             Map.SetCenter(point);
+        }
+
+        private void OnZoomGeometriesClick(dynamic e)
+        {
+            Map.SetZoomToExtent(Extent.Geometries);
+        }
+
+        private void OnZoomMarkersClick(dynamic e)
+        {
+            Map.SetZoomToExtent(Extent.Markers);
         }
 
         private string ClickString { get; set; }
