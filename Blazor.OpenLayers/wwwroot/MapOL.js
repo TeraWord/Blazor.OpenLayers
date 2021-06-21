@@ -129,7 +129,8 @@ MapOL.prototype.setGeometries = function (geometries) {
 
             case "GeometryCircle":
                 feature = new ol.Feature({
-                    geometry: new ol.geom.Circle(geometry.coordinates[0], geometry.radius),
+                    //radius / ol.proj.getPointResolution('EPSG:3857', 1, feature.getGeometry().getCoordinates()
+                    geometry: new ol.geom.Circle(geometry.coordinates[0], geometry.radius / ol.proj.getPointResolution('EPSG:3857', 1, geometry.coordinates[0])),
                     title: geometry.title,
                     content: geometry.content
                 });

@@ -13,7 +13,7 @@ namespace TeraWord.Blazor.OpenLayers
         public GeometryCircle(Point center, double radius)
         {
             Points = new List<Point>() { center };
-            Radius = radius * 1.295 * 1000;
+            Radius = radius * 1000;
         }
     }
 }
