@@ -375,7 +375,7 @@ MapOL.prototype.lineStyle = function (line) {
     return [
         new ol.style.Style({
             //fill: new ol.style.Fill({ color: line.color, width: line.width }),
-            stroke: new ol.style.Stroke({ color: line.backgroundColor, width: line.width })
+            stroke: new ol.style.Stroke({ color: line.borderColor, width: line.width })
         }),
         new ol.style.Style({
             text: new ol.style.Text({
@@ -386,7 +386,7 @@ MapOL.prototype.lineStyle = function (line) {
                 fill: new ol.style.Fill({
                     color: line.color
                 }),
-                stroke: new ol.style.Stroke({ color: line.backgroundColor, width: line.width })
+                stroke: new ol.style.Stroke({ color: line.borderColor, width: line.width })
             }),
            
         })
@@ -396,7 +396,7 @@ MapOL.prototype.lineStyle = function (line) {
 MapOL.prototype.circleStyle = function (circle) {
     return [
         new ol.style.Style({
-            fill: new ol.style.Fill({ color: circle.color }),
+            fill: new ol.style.Fill({ color: circle.backgroundColor }),
             stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.width })
         }),
         //new ol.style.Style({

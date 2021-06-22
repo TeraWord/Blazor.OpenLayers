@@ -10,6 +10,10 @@ namespace TeraWord.Blazor.OpenLayers
     {
         public Point() { }
 
+        /// <summary>
+        /// New Point
+        /// </summary>
+        /// <param name="coordinates">Latitude, Longitude</param>
         public Point(params double[] coordinates)
         {
             if (coordinates.Length > 0) Latitude = coordinates[0];
@@ -58,7 +62,7 @@ namespace TeraWord.Blazor.OpenLayers
         /// <summary>
         /// Calcola un punto distante in km
         /// </summary>
-        /// <param name="distance"></param>
+        /// <param name="distance">distance in km</param>
         /// <returns></returns>
         public Point PointByDistance(double distance)
         {
@@ -66,9 +70,9 @@ namespace TeraWord.Blazor.OpenLayers
            
             rad *= Math.PI / 180;
 
-            double angDist = 0.343 / 6371;
-            double latitude = 3.170620;
-            double longitude = 103.151279;
+            double angDist = distance / 6371;
+            double latitude = Latitude;
+            double longitude = Longitude;
 
             latitude *= Math.PI / 180;
             longitude *= Math.PI / 180;
