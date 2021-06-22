@@ -14,8 +14,6 @@ namespace TeraWord.Blazor.OpenLayers
 
         public string Label { get; set; } = "";
 
-        public int Width { get; set; } = 1;
-
         public double Radius { get; set; }  
     }
 }

@@ -24,6 +24,8 @@ namespace TeraWord.Blazor.OpenLayers
 
         public string BorderColor { get; set; } = "#FFFFFF";
 
+        public int BorderSize { get; set; } = 1;
+
         public string BackgroundColor { get; set; } = "#000000";
     }
 }

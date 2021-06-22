@@ -119,7 +119,7 @@ MapOL.prototype.setGeometries = function (geometries) {
         for (var i = 0; i < geometry.coordinates.length; i++) {
             geometry.coordinates[i] = ol.proj.transform(geometry.coordinates[i], 'EPSG:4326', 'EPSG:3857');
         }
-
+                
         var feature;
 
         switch (geometry.type) {
@@ -132,9 +132,12 @@ MapOL.prototype.setGeometries = function (geometries) {
                 break;
 
             case "GeometryCircle":
+                var circle = new ol.geom.Circle(geometry.coordinates[0], geometry.radius / ol.proj.getPointResolution('EPSG:3857', 1, geometry.coordinates[0]));
+
                 feature = new ol.Feature({
                     //radius / ol.proj.getPointResolution('EPSG:3857', 1, feature.getGeometry().getCoordinates()
-                    geometry: new ol.geom.Circle(geometry.coordinates[0], geometry.radius / ol.proj.getPointResolution('EPSG:3857', 1, geometry.coordinates[0])),
+                    //geometry: new ol.geom.Circle(geometry.coordinates[0], geometry.radius / ol.proj.getPointResolution('EPSG:3857', 1, geometry.coordinates[0])),
+                    geometry: new ol.geom.Polygon.fromCircle(circle, 32, 90),
                     title: geometry.title,
                     content: geometry.content
                 });
@@ -187,11 +190,11 @@ MapOL.prototype.onMapClick = function (evt, popup, element) {
     var feature = this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
 
     if (feature) {
-        var title = feature.get("title");
-        var content = feature.get('content');
-
         if (feature.marker != null) this.Instance.invokeMethodAsync('OnInternalMarkerClick', feature.marker);
         if (feature.geometry != null) this.Instance.invokeMethodAsync('OnInternalGeometryClick', feature.geometry);
+
+        var title = feature.get("title");
+        var content = feature.get('content');
 
         if (title != "") {
             var coordinates = feature.getGeometry().getCoordinates();
@@ -234,21 +237,19 @@ MapOL.prototype.onMapPointerMove = function (evt, element) {
 }
 
 MapOL.prototype.pinStyle = function (marker) {
-    return [
-        new ol.style.Style({
-            image: new ol.style.Icon({
-                anchor: [256, 439],
-                size: [800, 571],
-                offset: [0, 0],
-                opacity: 1,
-                scale: 0.1,
-                color: marker.color,
-                anchorXUnits: 'pixels', // pixels fraction
-                anchorYUnits: 'pixels', // pixels fraction
-                src: './_content/teraword.blazor.openlayers/img/pin.png'
-            }),
-        })
-    ];
+    return new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [256, 439],
+            size: [800, 571],
+            offset: [0, 0],
+            opacity: 1,
+            scale: 0.1,
+            color: marker.color,
+            anchorXUnits: 'pixels', // pixels fraction
+            anchorYUnits: 'pixels', // pixels fraction
+            src: './_content/teraword.blazor.openlayers/img/pin.png'
+        }),
+    });
 }
 
 MapOL.prototype.flagStyle = function (marker) {
@@ -268,7 +269,7 @@ MapOL.prototype.flagStyle = function (marker) {
         font: font
     });
 
-    var strokeWidth = 2;
+    var strokeWidth = marker.borderSize;
     var arrowWidth = 6;
 
     var symbol = [
@@ -284,46 +285,35 @@ MapOL.prototype.flagStyle = function (marker) {
 
     context.setStyle(
         new ol.style.Style({
-            fill: new ol.style.Fill({
-                color: "#ffcc66"
-            }),
-            stroke: new ol.style.Stroke({
-                color: "#b37700",
-                width: strokeWidth
-            }),
+            fill: new ol.style.Fill({ color: marker.backgroundColor }),
+            stroke: new ol.style.Stroke({ color: marker.borderColor, width: marker.borderSize }),
         })
     );
 
     context.drawGeometry(new ol.geom.Polygon([symbol]));
 
-    return [
-        new ol.style.Style({
-            image: new ol.style.Icon({
-                anchorXUnits: 'pixels', // pixels fraction
-                anchorYUnits: 'pixels', // pixels fraction
-                anchor: symbol[4],
-                size: [width, height],
-                offset: [0, 0],
-                img: canvas,
-                imgSize: [width, height],   
-                scale: 1,
-            }),
+    return new ol.style.Style({
+        image: new ol.style.Icon({
+            anchorXUnits: 'pixels', // pixels fraction
+            anchorYUnits: 'pixels', // pixels fraction
+            anchor: symbol[4],
+            size: [width, height],
+            offset: [0, 0],
+            img: canvas,
+            imgSize: [width, height],
+            scale: 1,
         }),
-        new ol.style.Style({
-            text: new ol.style.Text({
-                text: marker.title,                 
-                offsetY: -height / 2,
-                offsetX: -arrowWidth,
-                textAlign: "left",
-                opacity: 1,
-                scale: 0.75,
-                font: font,
-                fill: new ol.style.Fill({
-                    color: "#444444"
-                })
-            })
+        text: new ol.style.Text({
+            text: marker.title,
+            offsetY: -height / 2,
+            offsetX: -arrowWidth,
+            textAlign: "left",
+            opacity: 1,
+            scale: 0.75,
+            font: font,
+            fill: new ol.style.Fill({ color: marker.color })
         })
-    ];
+    });
 }
 
 MapOL.prototype.awesomeStyle = function (marker) {
@@ -347,13 +337,8 @@ MapOL.prototype.awesomeStyle = function (marker) {
                 scale: 2,
                 font: '900 18px "Font Awesome 5 Free"',
                 textBaseline: 'bottom',
-                fill: new ol.style.Fill({
-                    color: marker.backgroundColor
-                }),
-                stroke: new ol.style.Stroke({
-                    color: marker.borderColor,
-                    width: 3
-                })
+                fill: new ol.style.Fill({ color: marker.backgroundColor }),
+                stroke: new ol.style.Stroke({ color: marker.borderColor, width: 3 })
             })
         }),
         new ol.style.Style({
@@ -363,54 +348,42 @@ MapOL.prototype.awesomeStyle = function (marker) {
                 opacity: 1,
                 scale: 1,
                 font: '900 18px "Font Awesome 5 Free"',
-                fill: new ol.style.Fill({
-                    color: marker.color
-                })
+                fill: new ol.style.Fill({ color: marker.color })
             })
         })
     ];
 }
 
 MapOL.prototype.lineStyle = function (line) {
-    return [
-        new ol.style.Style({
-            //fill: new ol.style.Fill({ color: line.color, width: line.width }),
-            stroke: new ol.style.Stroke({ color: line.borderColor, width: line.width })
+    return new ol.style.Style({
+        stroke: new ol.style.Stroke({ color: line.borderColor, width: line.borderSize }),
+        text: new ol.style.Text({
+            text: line.label,
+            placement: "line",
+            opacity: 1,
+            scale: line.textScale,
+            fill: new ol.style.Fill({ color: line.color }),
+            stroke: new ol.style.Stroke({ color: line.borderColor, width: line.borderSize })
         }),
-        new ol.style.Style({
-            text: new ol.style.Text({
-                text: line.label,
-                placement: "line",
-                opacity: 1,
-                scale: line.textScale,
-                fill: new ol.style.Fill({
-                    color: line.color
-                }),
-                stroke: new ol.style.Stroke({ color: line.borderColor, width: line.width })
-            }),
-           
-        })
-    ];
+    });
 }
 
 MapOL.prototype.circleStyle = function (circle) {
-    return [
-        new ol.style.Style({
-            fill: new ol.style.Fill({ color: circle.backgroundColor }),
-            stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.width })
+    return new ol.style.Style({
+        fill: new ol.style.Fill({ color: circle.backgroundColor }),
+        stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.borderSize }),
+        text: new ol.style.Text({
+            //textAlign: "Start",
+            //textBaseline: "Middle",
+            overflow: true,
+            text: circle.label,
+            placement: "line",
+            scale: circle.textScale,
+            fill: new ol.style.Fill({ color: circle.color }),
+            stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.borderSize }),
+            offsetX: 0,
+            offsetY: 0,
+            rotation: 0
         }),
-        //new ol.style.Style({
-        //    text: new ol.style.Text({
-        //        text: circle.label,
-        //        placement: "line",
-        //        opacity: 1,
-        //        scale: circle.textScale,
-        //        fill: new ol.style.Fill({
-        //            color: circle.color
-        //        }),
-        //        stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.width })
-        //    }),
-
-        //})
-    ];
+    });   
 }

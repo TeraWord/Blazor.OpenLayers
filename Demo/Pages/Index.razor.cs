@@ -130,9 +130,9 @@ namespace Demo.Pages
             var color = NewColor;
 
             line.Label = $"{a.DistanceTo(b)} km";
-            line.Width = 4;
             line.TextScale = 1.5;
             line.BorderColor = color;
+            line.BorderSize = 4;
 
             Map.Geometries.Add(line);
 
@@ -166,15 +166,18 @@ namespace Demo.Pages
             var distance = a.DistanceTo(b);
 
             line.Label = $"{distance} km";
-            line.Width = 2;
             line.TextScale = 1.5;
             line.BorderColor = color;
+            line.BorderSize = 2;
 
             Map.Geometries.Add(line);
 
             var circle = new GeometryCircle(a, distance);
+            circle.Label = $"{distance} km";
+            circle.TextScale = 1.5;
             circle.BackgroundColor = "#0000BB11";
             circle.BorderColor = "#0000BB66";
+
             Map.Geometries.Add(circle);
         }
 
