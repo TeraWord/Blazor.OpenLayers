@@ -14,6 +14,8 @@ namespace TeraWord.Blazor.OpenLayers
 
         public string Type { get; set; }
 
+        public bool Popup { get; set; }
+
         public string Title { get; set; } = "";
 
         public string Content { get; set; } = "";

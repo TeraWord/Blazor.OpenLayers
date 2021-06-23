@@ -84,6 +84,7 @@ MapOL.prototype.setMarkers = function (markers) {
     markers.forEach((marker) => {
         var feature = new ol.Feature({
             geometry: new ol.geom.Point(ol.proj.transform(marker.point.coordinates, 'EPSG:4326', 'EPSG:3857')),
+            popup: marker.popup,
             title: marker.title,
             content: marker.content
         });
@@ -126,6 +127,7 @@ MapOL.prototype.setGeometries = function (geometries) {
             case "GeometryLine":
                 feature = new ol.Feature({
                     geometry: new ol.geom.LineString(geometry.coordinates),
+                    popup: geometry.popup,
                     title: geometry.title,
                     content: geometry.content
                 });
@@ -138,6 +140,7 @@ MapOL.prototype.setGeometries = function (geometries) {
                     //radius / ol.proj.getPointResolution('EPSG:3857', 1, feature.getGeometry().getCoordinates()
                     //geometry: new ol.geom.Circle(geometry.coordinates[0], geometry.radius / ol.proj.getPointResolution('EPSG:3857', 1, geometry.coordinates[0])),
                     geometry: new ol.geom.Polygon.fromCircle(circle, 32, 90),
+                    popup: geometry.popup,
                     title: geometry.title,
                     content: geometry.content
                 });
@@ -187,16 +190,18 @@ MapOL.prototype.setCenter = function (point) {
 MapOL.prototype.onMapClick = function (evt, popup, element) {
     $(element).popover('dispose');
 
-    var feature = this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) { return feature; });
+    var that = this;
+    var showedPopup = false;
 
-    if (feature) {
-        if (feature.marker != null) this.Instance.invokeMethodAsync('OnInternalMarkerClick', feature.marker);
-        if (feature.geometry != null) this.Instance.invokeMethodAsync('OnInternalGeometryClick', feature.geometry);
+    this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+        if (feature.marker != null) that.Instance.invokeMethodAsync('OnInternalMarkerClick', feature.marker);
+        if (feature.geometry != null) that.Instance.invokeMethodAsync('OnInternalGeometryClick', feature.geometry);
 
+        var showPopup = feature.get("popup");
         var title = feature.get("title");
         var content = feature.get('content');
-
-        if (title != "") {
+       
+        if (showPopup && title != "") {
             var coordinates = feature.getGeometry().getCoordinates();
 
             popup.setPosition(coordinates);
@@ -209,18 +214,15 @@ MapOL.prototype.onMapClick = function (evt, popup, element) {
             });
 
             $(element).popover('show');
+            showedPopup = true;
         }
-        else
-        {
-            $(element).popover('dispose');
-        }
-    } else {
+    });
+
+    if (!showedPopup) {
         var coordinate = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326')
         var point = { Latitude: coordinate[1], Longitude: coordinate[0] };
 
         this.Instance.invokeMethodAsync('OnInternalClick', point);
-
-        $(element).popover('dispose');
     }
 }
 

@@ -114,6 +114,7 @@ namespace Demo.Pages
             {
                 Title = titles[rnd.Next(titles.Length)],
                 Content = $"<b>Colore:</b> {color}",
+                Popup = true,
                 Icon = icons[rnd.Next(icons.Length)],
                 BackgroundColor = color,
             };
