@@ -68,32 +68,49 @@ namespace Demo.Pages
         private void OnFlagClick(dynamic e)
         {
             var point = NewPoint();
-
-            var testi = new string[] {
-                "Ciao",
-                "TeraWord",
-                "Mario Rossi",
-
-                "Testo riempitivo nelle prove grafiche",
-                "|!£$%&/()=?^"
-            };
-
             //point = new Point(39.215704, 9.109290); // Cagliari incroco via Roma - via Sassari
+            //Map.Markers.Add(new MarkerPin(point, "#FF0000"));
 
-            Map.Markers.Add(new MarkerFlag(point, testi[rnd.Next(testi.Length)]));
+            var flag = new MarkerFlag(point, NewText);
+            flag.BackgroundColor = "#00AA00EE";
+            flag.BorderColor = "#000000FF";
+            flag.TextScale = 1.2;
+            flag.Popup = true;
+            Map.Markers.Add(flag);
         }
 
         private string NewColor
         {
             get
             {
-                var colors = new string[] {
+                var result = new string[] {
                     "#990000", "#009900", "#000099",
                     "#997700", "#009977", "#770099",
                     "#990077", "#779900", "#007799",
                 };
 
-                return colors[rnd.Next(colors.Length)];
+                return result[rnd.Next(result.Length)];
+            }
+        }
+
+        private string NewText
+        {
+            get
+            {
+                var result = new string[] {
+                    "Turn a blind eye",
+                    "White elephant",
+                    "Crocodile tears",
+                    "Diehard",
+                    "Resting on laurels",
+                    "Read the riot act",
+                    "Paint the town red",
+                    "Running amok",
+                    "By and large",
+                    "The third degree",
+                };
+
+                return result[rnd.Next(result.Length)];
             }
         }
 
@@ -101,18 +118,12 @@ namespace Demo.Pages
         {
             var icons = new int[] { 0xF29A, 0xF5A7, 0xF0F0, 0xF48E };
 
-            var titles = new string[] {
-                "Uno", "Due", "Tre",
-                "Quattro", "Cinque", "Sei",
-                "Sette Otto", "Nove Dieci"
-            };
-
             var point = NewPoint();
             var color = NewColor;
 
             var marker = new MarkerAwesome(point)
             {
-                Title = titles[rnd.Next(titles.Length)],
+                Title = NewText,
                 Content = $"<b>Colore:</b> {color}",
                 Popup = true,
                 Icon = icons[rnd.Next(icons.Length)],

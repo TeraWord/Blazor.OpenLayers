@@ -255,34 +255,28 @@ MapOL.prototype.pinStyle = function (marker) {
 }
 
 MapOL.prototype.flagStyle = function (marker) {
-    var width = 30;
-    var height = 30;
-    var font = 'bold 18px Arial';
+    var padTop = 4;
+    var padBottom = 2;
+    var padLeft = 5;
+    var padRight = 5;
+
+    var size = 10;
+    var width = size;
+    var height = size;
 
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext("2d");
 
-    ctx.font = font;
-    width = ctx.measureText(marker.title).width;
-
     var context = ol.render.toContext(canvas.getContext('2d'), {
         size: [width, height],
-        pixelRatio: 1,
-        font: font
+        pixelRatio: 1
     });
-
-    var strokeWidth = marker.borderSize;
-    var arrowWidth = 6;
-
+       
     var symbol = [
-        [0 + strokeWidth, 0 + strokeWidth],
-        [width - strokeWidth, 0 + strokeWidth],
-        [width - strokeWidth, height - strokeWidth - arrowWidth],
-        [0 + strokeWidth + arrowWidth * 3, height - strokeWidth - arrowWidth],
-        [0 + strokeWidth + arrowWidth * 2, height - strokeWidth],
-        [0 + strokeWidth + arrowWidth * 1, height - strokeWidth - arrowWidth],
-        [0 + strokeWidth, height - strokeWidth - arrowWidth],
-        [0 + strokeWidth, 0 + strokeWidth]
+        [0, 0],
+        [width, 0],
+        [width /2, height],
+        [0, 0]
     ];
 
     context.setStyle(
@@ -298,7 +292,7 @@ MapOL.prototype.flagStyle = function (marker) {
         image: new ol.style.Icon({
             anchorXUnits: 'pixels', // pixels fraction
             anchorYUnits: 'pixels', // pixels fraction
-            anchor: symbol[4],
+            anchor: [width / 2, height],
             size: [width, height],
             offset: [0, 0],
             img: canvas,
@@ -307,13 +301,17 @@ MapOL.prototype.flagStyle = function (marker) {
         }),
         text: new ol.style.Text({
             text: marker.title,
-            offsetY: -height / 2,
-            offsetX: -arrowWidth,
+            offsetY: -size - padBottom + 1,
+            offsetX: -size,
             textAlign: "left",
-            opacity: 1,
-            scale: 0.75,
-            font: font,
-            fill: new ol.style.Fill({ color: marker.color })
+            textBaseline: "bottom",
+            scale: marker.textScale,
+            //font: "bold 18px Arial",
+            fill: new ol.style.Fill({ color: marker.color }),
+            //stroke: new ol.style.Stroke({ color: marker.borderColor, width: marker.borderSize }),
+            backgroundFill: new ol.style.Fill({ color: marker.backgroundColor }),
+            backgroundStroke: new ol.style.Stroke({ color: marker.borderColor, width: marker.borderSize }),
+            padding: [padTop, padRight, padBottom, padLeft]
         })
     });
 }
