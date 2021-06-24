@@ -1,5 +1,5 @@
 ﻿<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">Demo</a>
+    <a class="navbar-brand" href="" style="padding-left:2rem;">Blazor OpenLayers</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -10,6 +10,12 @@
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+            <NavLink class="nav-link" href="http://www.teraword.net" target="_blank" style="padding-left:0.8rem;" Match="NavLinkMatch.All">
+                <img src="/img/TeraWord.png" width="24" /><span style="padding-left:0.7rem;">TeraWord</span> 
+            </NavLink>
+            <NavLink class="nav-link" href="https://github.com/TeraWord/Blazor.OpenLayers" target="_blank" style="padding-left:0.9rem;" Match="NavLinkMatch.All">
+                <img src="/img/github.svg" width="20" /><span style="padding-left:0.8rem;">GitHub</span>
             </NavLink>
         </li>
     </ul>

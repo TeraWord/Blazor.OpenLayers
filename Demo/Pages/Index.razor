@@ -1,28 +1,49 @@
 ﻿@page "/"
 
-<h1><i class="fas fa-map"></i> TeraWord OpenLayers @(typeof(TeraWord.Blazor.OpenLayers.Map).Assembly.GetName().Version.ToString(3))</h1>
+<h1><i class="fas fa-map"></i> TeraWord Blazor OpenLayers @(typeof(TeraWord.Blazor.OpenLayers.Map).Assembly.GetName().Version.ToString(3))</h1>
 
-<div style="border:1px solid silver;height:640px;">
-    <Map @ref=Map
-         PopupID="Popeye"
-         Attributions="Demo by <a href='https://www.teraword.net'><b>TeraWord</b></a>"
-         OnMarkerClick=OnMarkerClick
-         OnGeometryClick=OnGeometryClick
-         OnClick=OnClick />
+<div class="row">
+    <div class="col-9">
+        <div style="border:1px solid silver;height:640px;">
+            <Map @ref=Map
+                 PopupID="Popeye"
+                 Attributions="Demo by <a href='https://www.teraword.net'><b>TeraWord</b></a>"
+                 OnMarkerClick=OnMarkerClick
+                 OnGeometryClick=OnGeometryClick
+                 OnClick=OnClick />
+        </div>
+    </div>
+    <div class="col-3">
+        <figure class="highlight">
+            <pre>
+                <code class="language-js" data-lang="js">
+                    @ClickString
+                </code>
+            </pre>
+        </figure>
+    </div>
 </div>
 
 <br />
 
-<button class="btn btn-primary" @onclick=OnCenterClick>center</button>
-<button class="btn btn-primary" @onclick=OnPinClick>pin</button>
-<button class="btn btn-primary" @onclick=OnFlagClick>flag</button>
-<button class="btn btn-primary" @onclick=OnAwesomeClick>awesome</button>
-<button class="btn btn-primary" @onclick=OnLineClick>line</button>
-<button class="btn btn-primary" @onclick=OnCircleClick>circle</button>
-<button class="btn btn-primary" @onclick=OnZoomGeometriesClick>zoom geometries</button>
-<button class="btn btn-primary" @onclick=OnZoomMarkersClick>zoom markers</button>
+<div class="btn-group" role="group" aria-label="functions">
+    <button class="btn btn-success" @onclick=OnCenterClick>center</button>
+</div>
 
-<div id="Popeye"></div>
+<div class="btn-group" role="group" aria-label="markers">
+    <button class="btn btn-primary" @onclick=OnPinClick>pin</button>
+    <button class="btn btn-primary" @onclick=OnFlagClick>flag</button>
+    <button class="btn btn-primary" @onclick=OnAwesomeClick>awesome</button>
+    <button class="btn btn-success" @onclick=OnZoomMarkersClick>zoom</button>
+</div>
 
-<br />
-Click: @ClickString
+<div class="btn-group" role="group" aria-label="geometries">
+    <button class="btn btn-primary" @onclick=OnLineClick>line</button>
+    <button class="btn btn-primary" @onclick=OnCircleClick>circle</button>
+    <button class="btn btn-success" @onclick=OnZoomGeometriesClick>zoom</button>
+</div>
+
+    <div id="Popeye"></div>
+
+    <br />
+    
