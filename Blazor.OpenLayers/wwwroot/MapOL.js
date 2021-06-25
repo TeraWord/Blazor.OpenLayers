@@ -12,6 +12,10 @@ export function MapOLZoom(mapID, zoom) {
     _MapOL[mapID].setZoom(zoom);
 }
 
+export function MapOLLoadGeoJson(mapID, url) {
+    _MapOL[mapID].loadGeoJson(url);
+}
+
 export function MapOLZoomToExtent(mapID, extent) {
     _MapOL[mapID].setZoomToExtent(extent);
 }
@@ -23,6 +27,75 @@ export function MapOLMarkers(mapID, markers) {
 export function MapOLGeometries(mapID, geometries) {
     _MapOL[mapID].setGeometries(geometries);
 }
+
+// --- GeoStyles ------------------------------------------------------------------------//
+
+var geoStyles = {
+    'Point': new ol.style.Style({
+        //image: image
+        fill: new ol.style.Fill({ color: "#FF0000FF" }),
+        stroke: new ol.style.Stroke({ color: "#00FF00FF", width: 3 })
+    }),
+    'LineString': new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'green',
+            width: 1
+        })
+    }),
+    'MultiLineString': new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'green',
+            width: 1
+        })
+    }),
+    //'MultiPoint': new ol.style.Style({
+    //    image: image
+    //}),
+    'MultiPolygon': new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'yellow',
+            width: 1
+        }),
+        fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 0, 0.1)'
+        })
+    }),
+    'Polygon': new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'blue',
+            lineDash: [4],
+            width: 3
+        }),
+        fill: new ol.style.Fill({
+            color: 'rgba(0, 0, 255, 0.1)'
+        })
+    }),
+    'GeometryCollection': new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'magenta',
+            width: 2
+        }),
+        fill: new ol.style.Fill({
+            color: 'magenta'
+        }),
+        image: new ol.style.Circle({
+            radius: 10,
+            fill: null,
+            stroke: new ol.style.Stroke({
+                color: 'magenta'
+            })
+        })
+    }),
+    'Circle': new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'red',
+            width: 2
+        }),
+        fill: new ol.style.Fill({
+            color: 'rgba(255,0,0,0.2)'
+        })
+    })
+};
 
 // --- MapOL ----------------------------------------------------------------------------//
 
@@ -161,6 +234,32 @@ MapOL.prototype.setGeometries = function (geometries) {
 
         source.addFeature(feature);
     });
+}
+
+MapOL.prototype.loadGeoJson = function (url) {   
+    if (!url) return;
+
+   // import CountryLayer from url;
+
+    //var geoSource = new ol.source.Vector({
+    //    features: (new ol.format.GeoJSON()).readFeatures(CountryLayer, { featureProjection: 'EPSG:3857' })
+    //});
+
+    var geoSource = new ol.source.Vector({
+        format: new ol.format.GeoJSON(),
+        url: url
+    });
+
+    var geoLayer = new ol.layer.Vector({
+        source: geoSource,
+        style: this.getGeoStyle
+    });
+
+    this.Map.addLayer(geoLayer);
+}
+
+MapOL.prototype.getGeoStyle = function (feature) {
+    return geoStyles[feature.getGeometry().getType()];
 }
 
 MapOL.prototype.setZoom = function (zoom) {

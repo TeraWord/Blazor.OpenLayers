@@ -1,0 +1,20 @@
+﻿@page "/geojson"
+
+<h1><i class="fas fa-map"></i> TeraWord Blazor OpenLayers @(typeof(TeraWord.Blazor.OpenLayers.Map).Assembly.GetName().Version.ToString(3))</h1>
+
+<label for="geojson-url">GeoJson url</label>
+<div class="input-group mb-3">
+    <input type="text" class="form-control" id="geojson-url"@bind-value=@GeoJsonUrl aria-describedby="basic-addon3">
+    <div class="input-group-append">
+        <button class="btn btn-primary" @onclick=OnLoadClick>load</button>
+    </div>
+</div>
+
+<br />
+<br />
+
+<div style="border:1px solid silver;height:640px;">
+    <Map @ref=Map
+         Attributions="Demo by <a href='http://www.teraword.net'><b>TeraWord</b></a>" />
+</div>
+
