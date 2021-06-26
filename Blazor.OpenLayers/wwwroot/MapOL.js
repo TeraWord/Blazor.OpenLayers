@@ -28,75 +28,6 @@ export function MapOLGeometries(mapID, geometries) {
     _MapOL[mapID].setGeometries(geometries);
 }
 
-// --- GeoStyles ------------------------------------------------------------------------//
-
-var geoStyles = {
-    'Point': new ol.style.Style({
-        //image: image
-        fill: new ol.style.Fill({ color: "#FF0000FF" }),
-        stroke: new ol.style.Stroke({ color: "#00FF00FF", width: 3 })
-    }),
-    'LineString': new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'green',
-            width: 1
-        })
-    }),
-    'MultiLineString': new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'green',
-            width: 1
-        })
-    }),
-    //'MultiPoint': new ol.style.Style({
-    //    image: image
-    //}),
-    'MultiPolygon': new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'yellow',
-            width: 1
-        }),
-        fill: new ol.style.Fill({
-            color: 'rgba(255, 255, 0, 0.1)'
-        })
-    }),
-    'Polygon': new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'blue',
-            lineDash: [4],
-            width: 3
-        }),
-        fill: new ol.style.Fill({
-            color: 'rgba(0, 0, 255, 0.1)'
-        })
-    }),
-    'GeometryCollection': new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'magenta',
-            width: 2
-        }),
-        fill: new ol.style.Fill({
-            color: 'magenta'
-        }),
-        image: new ol.style.Circle({
-            radius: 10,
-            fill: null,
-            stroke: new ol.style.Stroke({
-                color: 'magenta'
-            })
-        })
-    }),
-    'Circle': new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'red',
-            width: 2
-        }),
-        fill: new ol.style.Fill({
-            color: 'rgba(255,0,0,0.2)'
-        })
-    })
-};
-
 // --- MapOL ----------------------------------------------------------------------------//
 
 function MapOL(mapID, popupID, center, zoom, markers, geometries, attributions, instance) {
@@ -258,10 +189,6 @@ MapOL.prototype.loadGeoJson = function (url) {
     this.Map.addLayer(geoLayer);
 }
 
-MapOL.prototype.getGeoStyle = function (feature) {
-    return geoStyles[feature.getGeometry().getType()];
-}
-
 MapOL.prototype.setZoom = function (zoom) {
     this.Map.getView().setZoom(zoom);
 }
@@ -286,6 +213,24 @@ MapOL.prototype.setCenter = function (point) {
     this.Map.getView().setCenter(ol.proj.transform(point.coordinates, 'EPSG:4326', 'EPSG:3857'));
 }
 
+MapOL.prototype.getReducedFeature = function (feature) {
+    var type = feature.getGeometry().getType();
+
+    var objectWithoutKey = (object, key) => {
+        const { [key]: deletedKey, ...otherKeys } = object;
+        return otherKeys;
+    }
+
+    var properties = objectWithoutKey(feature.getProperties(), "geometry");
+
+    var reduced = { 
+        type: type,
+        properties: properties
+    };
+
+    return reduced;
+}
+
 MapOL.prototype.onMapClick = function (evt, popup, element) {
     $(element).popover('dispose');
 
@@ -293,6 +238,10 @@ MapOL.prototype.onMapClick = function (evt, popup, element) {
     var showedPopup = false;
 
     this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+        if (feature != null) {
+            var reduced = that.getReducedFeature(feature);
+            that.Instance.invokeMethodAsync('OnInternalFeatureClick', reduced);
+        }
         if (feature.marker != null) that.Instance.invokeMethodAsync('OnInternalMarkerClick', feature.marker);
         if (feature.geometry != null) that.Instance.invokeMethodAsync('OnInternalGeometryClick', feature.geometry);
 
@@ -485,4 +434,87 @@ MapOL.prototype.circleStyle = function (circle) {
             rotation: 0
         }),
     });   
+}
+
+// --- GeoStyles ------------------------------------------------------------------------//
+
+MapOL.prototype.getGeoStyle = function (feature) {
+    var geoStyles = {
+        'Point': new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [256, 439],
+                size: [800, 571],
+                offset: [0, 0],
+                opacity: 1,
+                scale: 0.1,
+                color: "#AA0000",
+                anchorXUnits: 'pixels', // pixels fraction
+                anchorYUnits: 'pixels', // pixels fraction
+                src: './_content/teraword.blazor.openlayers/img/pin.png'
+            }),
+            //fill: new ol.style.Fill({ color: "#FF0000FF" }),
+            //stroke: new ol.style.Stroke({ color: "#00FF00FF", width: 3 })
+        }),
+        'LineString': new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'green',
+                width: 1
+            })
+        }),
+        'MultiLineString': new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'green',
+                width: 1
+            })
+        }),
+        //'MultiPoint': new ol.style.Style({
+        //    image: image
+        //}),
+        'MultiPolygon': new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'yellow',
+                width: 1
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 0, 0.1)'
+            })
+        }),
+        'Polygon': new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'blue',
+                lineDash: [4],
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(0, 0, 255, 0.1)'
+            })
+        }),
+        'GeometryCollection': new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'magenta',
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: 'magenta'
+            }),
+            image: new ol.style.Circle({
+                radius: 10,
+                fill: null,
+                stroke: new ol.style.Stroke({
+                    color: 'magenta'
+                })
+            })
+        }),
+        'Circle': new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'red',
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255,0,0,0.2)'
+            })
+        })
+    };
+
+    return geoStyles[feature.getGeometry().getType()];
 }

@@ -29,6 +29,8 @@ namespace TeraWord.Blazor.OpenLayers
 
         [Parameter] public string PopupID { get; set; }
 
+        [Parameter] public EventCallback<Feature> OnFeatureClick { get; set; }
+
         [Parameter] public EventCallback<Marker> OnMarkerClick { get; set; }
 
         [Parameter] public EventCallback<Geometry> OnGeometryClick { get; set; }
@@ -85,6 +87,12 @@ namespace TeraWord.Blazor.OpenLayers
         private void Geometries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             SetGeometries(Geometries);
+        }
+
+        [JSInvokable]
+        public async Task OnInternalFeatureClick(Feature feature)
+        {
+            await OnFeatureClick.InvokeAsync(feature);
         }
 
         [JSInvokable]

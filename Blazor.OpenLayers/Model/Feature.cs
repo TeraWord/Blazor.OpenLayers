@@ -19,7 +19,7 @@ namespace TeraWord.Blazor.OpenLayers
         public string Title { get; set; } = "";
 
         public string Content { get; set; } = "";
-        
+
         public double TextScale { get; set; } = 1;
 
         public string Color { get; set; } = "#FFFFFF";
@@ -29,5 +29,7 @@ namespace TeraWord.Blazor.OpenLayers
         public int BorderSize { get; set; } = 1;
 
         public string BackgroundColor { get; set; } = "#000000";
+
+        public Dictionary<string, dynamic> Properties { get; set; }
     }
 }

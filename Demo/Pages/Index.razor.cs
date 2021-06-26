@@ -13,7 +13,9 @@ namespace Demo.Pages
 
         private Map Map { get; set; }
 
-        private static Random rnd = new();
+        private static Random rnd { get; set; } = new();
+
+        private string ClickString { get; set; }
 
         public Point NewPoint(double delta = 0.05)
         {
@@ -219,6 +221,6 @@ namespace Demo.Pages
             Map.SetZoomToExtent(Extent.Markers);
         }
 
-        private string ClickString { get; set; }
+        
     }
 }
