@@ -6,19 +6,21 @@ using System.Threading.Tasks;
 
 namespace TeraWord.Blazor.OpenLayers
 {
-    public class GeometryCircle : Geometry
+    public class ShapeCircle : Shape
     {
-        public GeometryCircle() { }
+        public ShapeCircle() { Geometry = new GeometryPoint(); }
 
         /// <summary>
         /// Draw a circle
         /// </summary>
         /// <param name="center">Center</param>
         /// <param name="radius">Radius in km</param>
-        public GeometryCircle(Point center, double radius)
+        public ShapeCircle(Point center, double radius)
         {
-            Points = new List<Point>() { center };
+            Point = center;
             Radius = radius * 1000;
         }
+
+        public Point Point { get => ((GeometryPoint)Geometry).Point; set => ((GeometryPoint)Geometry).Point = value; }
     }
 }

@@ -23,7 +23,7 @@ namespace TeraWord.Blazor.OpenLayers
 
         [Parameter] public ObservableCollection<object> Markers { get; set; }
 
-        [Parameter] public ObservableCollection<Geometry> Geometries { get; set; }
+        [Parameter] public ObservableCollection<Shape> Shapes { get; set; }
 
         [Parameter] public bool ShowPopup { get; set; }
 
@@ -33,7 +33,7 @@ namespace TeraWord.Blazor.OpenLayers
 
         [Parameter] public EventCallback<Marker> OnMarkerClick { get; set; }
 
-        [Parameter] public EventCallback<Geometry> OnGeometryClick { get; set; }
+        [Parameter] public EventCallback<Shape> OnShapeClick { get; set; }
 
         [Parameter] public EventCallback<Point> OnClick { get; set; }
 
@@ -57,10 +57,10 @@ namespace TeraWord.Blazor.OpenLayers
 
             Center ??= new Point { Latitude = 39.2236, Longitude = 9.1181 };
             Markers ??= new ObservableCollection<object>();
-            Geometries ??= new ObservableCollection<Geometry>();
+            Shapes ??= new ObservableCollection<Shape>();
 
             Markers.CollectionChanged += Markers_CollectionChanged;
-            Geometries.CollectionChanged += Geometries_CollectionChanged;
+            Shapes.CollectionChanged += Geometries_CollectionChanged;
         }
         
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -74,7 +74,7 @@ namespace TeraWord.Blazor.OpenLayers
                
                 var popupID = string.IsNullOrWhiteSpace(PopupID) ? InternalPopupID : PopupID; 
 
-                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Center, Zoom, Markers, Geometries, Attributions, Instance);
+                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Center, Zoom, Markers, Shapes, Attributions, Instance);
             }     
 
         }
@@ -86,7 +86,7 @@ namespace TeraWord.Blazor.OpenLayers
 
         private void Geometries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            SetGeometries(Geometries);
+            SetShapes(Shapes);
         }
 
         [JSInvokable]
@@ -102,9 +102,9 @@ namespace TeraWord.Blazor.OpenLayers
         }
 
         [JSInvokable]
-        public async Task OnInternalGeometryClick(Geometry geometry)
+        public async Task OnInternalShapeClick(Shape shape)
         {
-            await OnGeometryClick.InvokeAsync(geometry);
+            await OnShapeClick.InvokeAsync(shape);
         }
 
         [JSInvokable]
@@ -118,9 +118,9 @@ namespace TeraWord.Blazor.OpenLayers
             if (Module is not null) await Module.InvokeVoidAsync("MapOLMarkers", MapID, markers);
         }
 
-        private async void SetGeometries(ObservableCollection<Geometry> geometries)
+        private async void SetShapes(ObservableCollection<Shape> shapes)
         {
-            if (Module is not null) await Module.InvokeVoidAsync("MapOLGeometries", MapID, geometries);
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLSetShapes", MapID, shapes);
         }
 
         public async void SetCenter(Point center)

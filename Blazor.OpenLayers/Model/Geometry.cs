@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace TeraWord.Blazor.OpenLayers
 {
-    public class Geometry : Feature
+    public class Geometry
     {
-        public IEnumerable<Point> Points { get; set; } = new List<Point>();
-         
-        public IEnumerable<double[]> Coordinates { get => Points.Select(x => x.Coordinates); }
+        public Geometry() { }
 
-        public string Label { get; set; } = "";
+        public string Type { get; set; }
 
-        public double Radius { get; set; }  
+        public virtual dynamic Coordinates { get; set; }
     }
 }

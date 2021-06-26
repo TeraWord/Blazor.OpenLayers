@@ -1,7 +1,7 @@
 ﻿var _MapOL = new Array();
 
-export function MapOLInit(mapID, popupID, center, zoom, markers, geometries, attributions, instance) {
-    _MapOL[mapID] = new MapOL(mapID, popupID, center, zoom, markers, geometries, attributions, instance);
+export function MapOLInit(mapID, popupID, center, zoom, markers, shapes, attributions, instance) {
+    _MapOL[mapID] = new MapOL(mapID, popupID, center, zoom, markers, shapes, attributions, instance);
 }
 
 export function MapOLCenter(mapID, point) {
@@ -24,13 +24,13 @@ export function MapOLMarkers(mapID, markers) {
     _MapOL[mapID].setMarkers(markers);
 }
 
-export function MapOLGeometries(mapID, geometries) {
-    _MapOL[mapID].setGeometries(geometries);
+export function MapOLSetShapes(mapID, shapes) {
+    _MapOL[mapID].setShapes(shapes);
 }
 
 // --- MapOL ----------------------------------------------------------------------------//
 
-function MapOL(mapID, popupID, center, zoom, markers, geometries, attributions, instance) {
+function MapOL(mapID, popupID, center, zoom, markers, shapes, attributions, instance) {
     this.Instance = instance;
 
     this.Map = new ol.Map({
@@ -77,7 +77,7 @@ function MapOL(mapID, popupID, center, zoom, markers, geometries, attributions, 
     this.Map.on('pointermove', function (evt) { that.onMapPointerMove(evt, popupElement) });
 
     this.setMarkers(markers);
-    this.setGeometries(geometries);
+    this.setShapes(shapes);
 }
 
 MapOL.prototype.setMarkers = function (markers) {
@@ -95,7 +95,7 @@ MapOL.prototype.setMarkers = function (markers) {
 
         feature.marker = marker;
 
-        switch (marker.type) {
+        switch (marker.kind) {
             case "MarkerPin":
                 feature.setStyle(this.pinStyle(marker));
                 break;
@@ -113,53 +113,53 @@ MapOL.prototype.setMarkers = function (markers) {
     });
 }
 
-MapOL.prototype.setGeometries = function (geometries) {
+MapOL.prototype.setShapes = function (shapes) {
     var source = this.Geometries.getSource();
 
     source.clear();
 
-    if (!geometries) return;
+    if (!shapes) return;
 
-    geometries.forEach((geometry) => {
-        for (var i = 0; i < geometry.coordinates.length; i++) {
-            geometry.coordinates[i] = ol.proj.transform(geometry.coordinates[i], 'EPSG:4326', 'EPSG:3857');
+    shapes.forEach((shape) => {
+        for (var i = 0; i < shape.coordinates.length; i++) {
+            shape.coordinates[i] = ol.proj.transform(shape.coordinates[i], 'EPSG:4326', 'EPSG:3857');
         }
                 
         var feature;
 
-        switch (geometry.type) {
-            case "GeometryLine":
+        switch (shape.kind) {
+            case "ShapeLine":
                 feature = new ol.Feature({
-                    geometry: new ol.geom.LineString(geometry.coordinates),
-                    popup: geometry.popup,
-                    title: geometry.title,
-                    content: geometry.content
+                    geometry: new ol.geom.LineString(shape.coordinates),
+                    popup: shape.popup,
+                    title: shape.title,
+                    content: shape.content
                 });
                 break;
 
-            case "GeometryCircle":
-                var circle = new ol.geom.Circle(geometry.coordinates[0], geometry.radius / ol.proj.getPointResolution('EPSG:3857', 1, geometry.coordinates[0]));
+            case "ShapeCircle":
+                var circle = new ol.geom.Circle(shape.coordinates[0], shape.radius / ol.proj.getPointResolution('EPSG:3857', 1, shape.coordinates[0]));
 
                 feature = new ol.Feature({
                     //radius / ol.proj.getPointResolution('EPSG:3857', 1, feature.getGeometry().getCoordinates()
                     //geometry: new ol.geom.Circle(geometry.coordinates[0], geometry.radius / ol.proj.getPointResolution('EPSG:3857', 1, geometry.coordinates[0])),
                     geometry: new ol.geom.Polygon.fromCircle(circle, 32, 90),
-                    popup: geometry.popup,
-                    title: geometry.title,
-                    content: geometry.content
+                    popup: shape.popup,
+                    title: shape.title,
+                    content: shape.content
                 });
                 break;
         }
 
-        feature.geometry = geometry;
+        feature.shape = shape;
 
-        switch (geometry.type) {
-            case "GeometryLine":
-                feature.setStyle(this.lineStyle(geometry));
+        switch (shape.kind) {
+            case "ShapeLine":
+                feature.setStyle(this.lineStyle(shape));
                 break;
 
-            case "GeometryCircle":
-                feature.setStyle(this.circleStyle(geometry));
+            case "ShapeCircle":
+                feature.setStyle(this.circleStyle(shape));
                 break;
         }
 
@@ -224,7 +224,11 @@ MapOL.prototype.getReducedFeature = function (feature) {
     var properties = objectWithoutKey(feature.getProperties(), "geometry");
 
     var reduced = { 
-        type: type,
+        type: "Feature",
+        geometry: {
+            type: feature.getGeometry().getType(),
+            coordinates: feature.getGeometry().getCoordinates()
+        },
         properties: properties
     };
 

@@ -140,7 +140,7 @@ namespace Demo.Pages
             var a = NewPoint();
             var b = NewPoint();
 
-            var line = new GeometryLine(a, b);
+            var line = new ShapeLine(a, b);
             var color = NewColor;
 
             line.Label = $"{a.DistanceTo(b)} km";
@@ -148,7 +148,7 @@ namespace Demo.Pages
             line.BorderColor = color;
             line.BorderSize = 4;
 
-            Map.Geometries.Add(line);
+            Map.Shapes.Add(line);
 
             var ma = new MarkerAwesome(a)
             {
@@ -175,7 +175,7 @@ namespace Demo.Pages
             var a = NewPoint();
             var b = NewPoint();
 
-            var line = new GeometryLine(a, b);
+            var line = new ShapeLine(a, b);
             var color = NewColor;
             var distance = a.DistanceTo(b);
 
@@ -184,15 +184,15 @@ namespace Demo.Pages
             line.BorderColor = color;
             line.BorderSize = 2;
 
-            Map.Geometries.Add(line);
+            Map.Shapes.Add(line);
 
-            var circle = new GeometryCircle(a, distance);
+            var circle = new ShapeCircle(a, distance);
             circle.Label = $"{distance} km";
             circle.TextScale = 1.5;
             circle.BackgroundColor = "#0000BB11";
             circle.BorderColor = "#0000BB66";
 
-            Map.Geometries.Add(circle);
+            Map.Shapes.Add(circle);
         }
 
         private void OnMarkerClick(Marker marker)
@@ -200,9 +200,9 @@ namespace Demo.Pages
             ClickString = JsonSerializer.Serialize(marker, new JsonSerializerOptions { MaxDepth = 0, WriteIndented = true });
         }
 
-        private void OnGeometryClick(Geometry geometry)
+        private void OnShapeClick(Shape shape)
         {
-            ClickString = JsonSerializer.Serialize(geometry, new JsonSerializerOptions { MaxDepth = 0, WriteIndented = true });
+            ClickString = JsonSerializer.Serialize(shape, new JsonSerializerOptions { MaxDepth = 0, WriteIndented = true });
         }
 
         private void OnClick(Point point)
