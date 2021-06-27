@@ -9,7 +9,7 @@ namespace TeraWord.Blazor.OpenLayers
 { 
     public class MarkerFlag : Marker
     {
-        public MarkerFlag() { }
+        public MarkerFlag() : base() { }
 
         public MarkerFlag(Point point) : base(point) { }
 

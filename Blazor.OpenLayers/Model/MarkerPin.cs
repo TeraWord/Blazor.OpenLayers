@@ -9,7 +9,7 @@ namespace TeraWord.Blazor.OpenLayers
 { 
     public class MarkerPin : Marker
     {
-        public MarkerPin() { }
+        public MarkerPin() : base() { }
 
         public MarkerPin(Point point) : base(point) { }
 

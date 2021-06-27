@@ -11,7 +11,7 @@ namespace TeraWord.Blazor.OpenLayers
     {
         public Marker() { Geometry = new Geometry("Point"); }
 
-        public Marker(Point point) { Geometry = new Geometry("Point"); Point = point; }
+        public Marker(Point point) : this() { Point = point; }
 
         public Point Point { get => _point; set { _point = value; Geometry.Coordinates = value?.Coordinates; } }
         private Point _point;

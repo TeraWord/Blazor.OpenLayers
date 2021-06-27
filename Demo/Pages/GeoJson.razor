@@ -2,34 +2,31 @@
 
 <h1><i class="fas fa-map"></i> TeraWord Blazor OpenLayers @(typeof(TeraWord.Blazor.OpenLayers.Map).Assembly.GetName().Version.ToString(3))</h1>
 
-<div class="row">
-    <div class="col-9">
-        <label for="geojson-url">GeoJson url</label>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" id="geojson-url" @bind-value=@GeoJsonUrl aria-describedby="basic-addon3">
-            <div class="input-group-append">
-                <button class="btn btn-primary" @onclick=OnLoadClick>load</button>
-            </div>
-        </div>
-
-        <div style="height:0.5rem"/>
-
-        <div style="border:1px solid silver;height:640px;">
-            <Map @ref=Map
-                 Attributions="Demo by <a href='http://www.teraword.net'><b>TeraWord</b></a>"
-                 PopupID="Popeye"
-                 OnFeatureClick=OnFeatureClick />
-        </div>
+<label for="geojson-url">GeoJson url</label>
+<div class="input-group mb-3">
+    <input type="text" class="form-control" id="geojson-url" @bind-value=@GeoJsonUrl aria-describedby="basic-addon3">
+    <div class="input-group-append">
+        <button class="btn btn-primary" @onclick=OnLoadClick>load</button>
     </div>
-    <div class="col-3">
-        <figure class="highlight">
-            <pre>
-            <code class="language-js" data-lang="js">
+</div>
+
+<div style="height:0.5rem" />
+
+<div style="border:1px solid silver;height:640px;">
+    <Map @ref=Map
+         Attributions="Demo by <a href='http://www.teraword.net'><b>TeraWord</b></a>"
+         PopupID="Popeye"
+         OnFeatureClick=OnFeatureClick />
+</div>
+
+<div style="height:0.5rem" />
+
+<figure class="highlight">
+    <pre>
+    <code class="language-js" data-lang="js">
                     @ClickString
                 </code>
             </pre>
-        </figure>
-    </div>
-</div>
+</figure>
 
 <div id="Popeye"></div>

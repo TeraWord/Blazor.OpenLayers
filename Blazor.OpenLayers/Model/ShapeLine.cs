@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace TeraWord.Blazor.OpenLayers
@@ -15,7 +16,7 @@ namespace TeraWord.Blazor.OpenLayers
             Geometry = new Geometry("LineString");
             Points = new List<Point>(point);
         }
-              
+
         public IEnumerable<Point> Points { get => _points; set { _points = value; Geometry.Coordinates = value?.Select(x => x.Coordinates); } }
         private IEnumerable<Point> _points;
 

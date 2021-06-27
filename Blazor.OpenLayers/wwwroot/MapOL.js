@@ -1,7 +1,7 @@
 ﻿var _MapOL = new Array();
 
-export function MapOLInit(mapID, popupID, center, zoom, markers, shapes, attributions, instance) {
-    _MapOL[mapID] = new MapOL(mapID, popupID, center, zoom, markers, shapes, attributions, instance);
+export function MapOLInit(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance) {
+    _MapOL[mapID] = new MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance);
 }
 
 export function MapOLCenter(mapID, point) {
@@ -10,6 +10,10 @@ export function MapOLCenter(mapID, point) {
 
 export function MapOLZoom(mapID, zoom) {
     _MapOL[mapID].setZoom(zoom);
+}
+
+export function MapOLSetDefaults(mapID, defaults) {
+    _MapOL[mapID].setDefaults(defaults);
 }
 
 export function MapOLLoadGeoJson(mapID, url) {
@@ -30,8 +34,9 @@ export function MapOLSetShapes(mapID, shapes) {
 
 // --- MapOL ----------------------------------------------------------------------------//
 
-function MapOL(mapID, popupID, center, zoom, markers, shapes, attributions, instance) {
+function MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance) {
     this.Instance = instance;
+    this.Defaults = defaults;
 
     this.Map = new ol.Map({
         layers: [
@@ -171,26 +176,34 @@ MapOL.prototype.setShapes = function (shapes) {
     });
 }
 
-MapOL.prototype.loadGeoJson = function (url) {   
-    if (!url) return;
+MapOL.prototype.loadGeoJson = function (json) {   
+    if (this.GeoLayer) {
+        var source = this.GeoLayer.getSource();
 
-   // import CountryLayer from url;
+        source.clear();
+    }
+
+    if (!json) return;
+    
+    var geoSource = new ol.source.Vector({
+        features: (new ol.format.GeoJSON()).readFeatures(json, { featureProjection: 'EPSG:3857' })
+    });
 
     //var geoSource = new ol.source.Vector({
-    //    features: (new ol.format.GeoJSON()).readFeatures(CountryLayer, { featureProjection: 'EPSG:3857' })
+    //    format: new ol.format.GeoJSON(),
+    //    url: url
     //});
+    if (this.GeoLayer) {
+        this.GeoLayer.setSource(geoSource);
+    }
+    else {
+        this.GeoLayer = new ol.layer.Vector({
+            source: geoSource,
+            style: (feature) => this.getGeoStyle(feature)
+        });
 
-    var geoSource = new ol.source.Vector({
-        format: new ol.format.GeoJSON(),
-        url: url
-    });
-
-    var geoLayer = new ol.layer.Vector({
-        source: geoSource,
-        style: this.getGeoStyle
-    });
-
-    this.Map.addLayer(geoLayer);
+        this.Map.addLayer(this.GeoLayer);
+    }
 }
 
 MapOL.prototype.setZoom = function (zoom) {
@@ -215,6 +228,10 @@ MapOL.prototype.setZoomToExtent = function (extent) {
 
 MapOL.prototype.setCenter = function (point) {
     this.Map.getView().setCenter(ol.proj.transform(point.coordinates, 'EPSG:4326', 'EPSG:3857'));
+}
+
+MapOL.prototype.setDefaults = function (defaults) {
+    this.Defaults = defaults;
 }
 
 MapOL.prototype.getReducedFeature = function (feature) {
@@ -265,25 +282,34 @@ MapOL.prototype.onMapClick = function (evt, popup, element) {
             that.Instance.invokeMethodAsync('OnInternalShapeClick', shape);
         }
 
+        var showPopup = false;
+        var title = "";
+        var content = "";
+
         if (shape) {
-            var showPopup = shape.popup;
-            var title = shape.properties.title ?? "";
-            var content = shape.properties.content ?? "";
+            showPopup = shape.popup;
+            title = shape.properties.title ?? "";
+            content = shape.properties.content ?? "";
+        }
+        else if (that.Defaults.autoPopup) {
+            showPopup = true;
+            title = (that.Defaults.popupTitleProperty in feature.getProperties()) ? feature.getProperties()[that.Defaults.popupTitleProperty] : "";
+            content = (that.Defaults.popupContentProperty in feature.getProperties()) ? feature.getProperties()[that.Defaults.popupContentProperty] : "";
+        }
 
-            if (showPopup) {
-                var coordinates = feature.getGeometry().getCoordinates();
+        if (showPopup) {
+            var coordinates = feature.getGeometry().getCoordinates();
 
-                popup.setPosition(coordinates);
+            popup.setPosition(coordinates);
 
-                $(element).popover({
-                    placement: 'top',
-                    html: true,
-                    title: title,
-                    content: content,
-                });
+            $(element).popover({
+                placement: 'top',
+                html: true,
+                title: title,
+                content: content,
+            });
 
-                $(element).popover('show');
-            }
+            $(element).popover('show');
         }
     });
 
@@ -398,7 +424,7 @@ MapOL.prototype.awesomeStyle = function (marker) {
                 offset: [0, 0],
                 opacity: 1,
                 scale: 0.5,
-                color: marker.color,
+                color: marker.color ?? this.Defaults.color,
                 anchorXUnits: 'pixels', // pixels fraction
                 anchorYUnits: 'pixels', // pixels fraction
                 src: './_content/teraword.blazor.openlayers/img/pin-back.png'
@@ -410,18 +436,18 @@ MapOL.prototype.awesomeStyle = function (marker) {
                 scale: 2,
                 font: '900 18px "Font Awesome 5 Free"',
                 textBaseline: 'bottom',
-                fill: new ol.style.Fill({ color: marker.backgroundColor }),
-                stroke: new ol.style.Stroke({ color: marker.borderColor, width: 3 })
+                fill: new ol.style.Fill({ color: marker.backgroundColor ?? this.Defaults.backgroundColor }),
+                stroke: new ol.style.Stroke({ color: marker.borderColor ?? this.Defaults.borderColor, width: 3 })
             })
         }),
         new ol.style.Style({
             text: new ol.style.Text({
-                text: marker.properties.label, // String.fromCodePoint(marker.icon),
+                text: marker.properties?.label ?? this.Defaults.label, // String.fromCodePoint(marker.icon),
                 offsetY: -22,
                 opacity: 1,
                 scale: 1,
                 font: '900 18px "Font Awesome 5 Free"',
-                fill: new ol.style.Fill({ color: marker.color })
+                fill: new ol.style.Fill({ color: marker.color ?? this.Defaults.color })
             })
         })
     ];
@@ -462,22 +488,10 @@ MapOL.prototype.circleStyle = function (circle) {
 // --- GeoStyles ------------------------------------------------------------------------//
 
 MapOL.prototype.getGeoStyle = function (feature) {
+    var that = this;
+
     var geoStyles = {
-        'Point': new ol.style.Style({
-            image: new ol.style.Icon({
-                anchor: [256, 439],
-                size: [800, 571],
-                offset: [0, 0],
-                opacity: 1,
-                scale: 0.1,
-                color: "#AA0000",
-                anchorXUnits: 'pixels', // pixels fraction
-                anchorYUnits: 'pixels', // pixels fraction
-                src: './_content/teraword.blazor.openlayers/img/pin.png'
-            }),
-            //fill: new ol.style.Fill({ color: "#FF0000FF" }),
-            //stroke: new ol.style.Stroke({ color: "#00FF00FF", width: 3 })
-        }),
+        'Point': that.awesomeStyle(feature),
         'LineString': new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: 'green',

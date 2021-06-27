@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace TeraWord.Blazor.OpenLayers
 
         [Parameter] public string Attributions { get; set; } = "<a href='https://www.teraword.net'><b>TeraWord</b></a>";
 
-        [Parameter] public double Zoom { get => _zoom; set => SetZoom(value); } 
+        [Parameter] public double Zoom { get => _zoom; set => SetZoom(value); }
         private double _zoom = 14;
 
         [Parameter] public ObservableCollection<object> Markers { get; set; }
@@ -37,6 +38,8 @@ namespace TeraWord.Blazor.OpenLayers
 
         [Parameter] public EventCallback<Point> OnClick { get; set; }
 
+        public Defaults Defaults { get; private set; } = new();
+
         private string MapID { get; set; }
 
         private string InternalPopupID { get; set; }
@@ -47,7 +50,7 @@ namespace TeraWord.Blazor.OpenLayers
 
         public Map()
         {
-            MapID = Guid.NewGuid().ToString();      
+            MapID = Guid.NewGuid().ToString();
             InternalPopupID = Guid.NewGuid().ToString();
         }
 
@@ -62,7 +65,7 @@ namespace TeraWord.Blazor.OpenLayers
             Markers.CollectionChanged += Markers_CollectionChanged;
             Shapes.CollectionChanged += Geometries_CollectionChanged;
         }
-        
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
@@ -71,12 +74,11 @@ namespace TeraWord.Blazor.OpenLayers
             {
                 if (Module is null) Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/teraword.blazor.openlayers/MapOL.js");
                 if (Instance is null) Instance = DotNetObjectReference.Create(this);
-               
-                var popupID = string.IsNullOrWhiteSpace(PopupID) ? InternalPopupID : PopupID; 
 
-                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Center, Zoom, Markers, Shapes, Attributions, Instance);
-            }     
+                var popupID = string.IsNullOrWhiteSpace(PopupID) ? InternalPopupID : PopupID;
 
+                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Defaults, Center, Zoom, Markers, Shapes, Attributions, Instance);
+            }
         }
 
         private void Markers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -129,6 +131,12 @@ namespace TeraWord.Blazor.OpenLayers
             if (Module is not null) await Module.InvokeVoidAsync("MapOLCenter", MapID, center);
         }
 
+        public async void SetDefaults(Defaults defaults)
+        {
+            //_defaults = defaults;
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLSetDefaults", MapID, defaults);
+        }
+
         public async void SetZoom(double zoom)
         {
             _zoom = zoom;
@@ -140,9 +148,9 @@ namespace TeraWord.Blazor.OpenLayers
             if (Module is not null) await Module.InvokeVoidAsync("MapOLZoomToExtent", MapID, extent.ToString());
         }
 
-        public async void LoadGeoJson(string url)
-        {
-            if (Module is not null) await Module.InvokeVoidAsync("MapOLLoadGeoJson", MapID, url);
+        public async void LoadGeoJson(object json)
+        {            
+            if (Module is not null) await Module.InvokeVoidAsync("MapOLLoadGeoJson", MapID, json);
         }
 
         protected virtual async ValueTask DisposeAsyncCore()
