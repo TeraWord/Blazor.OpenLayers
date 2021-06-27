@@ -13,6 +13,8 @@ namespace TeraWord.Blazor.OpenLayers
 
         public MarkerAwesome(Point point) : base(point) { }
 
-        public MarkerAwesome(Point point, int icon) : base(point) { Icon = icon; }
+        public MarkerAwesome(Point point, int icon) : base(point) { Label = char.ConvertFromUtf32(icon); }
+       
+        public MarkerAwesome(Point point, string label) : base(point) { Label = label; }
     }
 }

@@ -10,8 +10,10 @@ namespace TeraWord.Blazor.OpenLayers
     {
         public Geometry() { }
 
+        public Geometry(string type) { Type = type; }
+
         public string Type { get; set; }
 
-        public virtual dynamic Coordinates { get; set; }
+        public dynamic Coordinates { get; set; }
     }
 }

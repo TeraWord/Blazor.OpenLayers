@@ -8,7 +8,7 @@ namespace TeraWord.Blazor.OpenLayers
 {
     public class ShapeCircle : Shape
     {
-        public ShapeCircle() { Geometry = new GeometryPoint(); }
+        public ShapeCircle() { Geometry = new Geometry("Point"); }
 
         /// <summary>
         /// Draw a circle
@@ -17,10 +17,12 @@ namespace TeraWord.Blazor.OpenLayers
         /// <param name="radius">Radius in km</param>
         public ShapeCircle(Point center, double radius)
         {
+            Geometry = new Geometry("Point");
             Point = center;
             Radius = radius * 1000;
         }
 
-        public Point Point { get => ((GeometryPoint)Geometry).Point; set => ((GeometryPoint)Geometry).Point = value; }
+        public Point Point { get => _point; set { _point = value; Geometry.Coordinates = value?.Coordinates; } }
+        private Point _point;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace TeraWord.Blazor.OpenLayers
@@ -15,12 +16,15 @@ namespace TeraWord.Blazor.OpenLayers
         public Guid ID { get; set; }
 
         public bool Popup { get; set; }
+        
+        [JsonIgnore]
+        public string Label { get => GetProperty<string>("label"); set => Properties["label"] = value; }
 
-        public string Label { get; set; } = "";
+        [JsonIgnore]
+        public string Title { get => GetProperty<string>("title"); set => Properties["title"] = value; }
 
-        public string Title { get; set; } = "";
-
-        public string Content { get; set; } = "";
+        [JsonIgnore]
+        public string Content { get => GetProperty<string>("content"); set => Properties["content"] = value; }
 
         public double TextScale { get; set; } = 1;
 
@@ -33,5 +37,10 @@ namespace TeraWord.Blazor.OpenLayers
         public string BackgroundColor { get; set; } = "#000000";
 
         public double Radius { get; set; }
+
+        private T GetProperty<T>(string key)
+        {
+            return Properties.ContainsKey(key) ? (T)Properties[key] : default(T);
+        }
     }
 }

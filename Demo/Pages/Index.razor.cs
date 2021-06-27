@@ -116,10 +116,23 @@ namespace Demo.Pages
             }
         }
 
+        private int NewIcon
+        {
+            get
+            {
+                var result = new int[] {
+                    0xF29A, 
+                    0xF5A7, 
+                    0xF0F0, 
+                    0xF48E,
+                };
+
+                return result[rnd.Next(result.Length)];
+            }
+        }
+
         private void OnAwesomeClick(dynamic e)
         {
-            var icons = new int[] { 0xF29A, 0xF5A7, 0xF0F0, 0xF48E };
-
             var point = NewPoint();
             var color = NewColor;
 
@@ -128,7 +141,7 @@ namespace Demo.Pages
                 Title = NewText,
                 Content = $"<b>Colore:</b> {color}",
                 Popup = true,
-                Icon = icons[rnd.Next(icons.Length)],
+                Label = char.ConvertFromUtf32(NewIcon),
                 BackgroundColor = color,
             };
 
@@ -154,7 +167,7 @@ namespace Demo.Pages
             {
                 Title = "A",
                 Content = $"<b>Punto:</b> A",
-                Icon = 0x41,
+                Label = "A",
                 BackgroundColor = color,
             };
 
@@ -162,7 +175,7 @@ namespace Demo.Pages
             {
                 Title = "B",
                 Content = $"<b>Punto:</b> B",
-                Icon = 0x42,
+                Label = "B",
                 BackgroundColor = color,
             };
 

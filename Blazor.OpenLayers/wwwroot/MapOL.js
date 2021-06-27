@@ -87,7 +87,7 @@ MapOL.prototype.setMarkers = function (markers) {
 
     markers.forEach((marker) => {
         var feature = new ol.Feature({
-            geometry: new ol.geom.Point(ol.proj.transform(marker.point.coordinates, 'EPSG:4326', 'EPSG:3857')),
+            geometry: new ol.geom.Point(ol.proj.transform(marker.geometry.coordinates, 'EPSG:4326', 'EPSG:3857')),
             popup: marker.popup,
             title: marker.title,
             content: marker.content
@@ -121,16 +121,18 @@ MapOL.prototype.setShapes = function (shapes) {
     if (!shapes) return;
 
     shapes.forEach((shape) => {
-        for (var i = 0; i < shape.coordinates.length; i++) {
-            shape.coordinates[i] = ol.proj.transform(shape.coordinates[i], 'EPSG:4326', 'EPSG:3857');
-        }
+        
                 
         var feature;
 
         switch (shape.kind) {
             case "ShapeLine":
+                for (var i = 0; i < shape.geometry.coordinates.length; i++) {
+                    shape.geometry.coordinates[i] = ol.proj.transform(shape.geometry.coordinates[i], 'EPSG:4326', 'EPSG:3857');
+                }
+
                 feature = new ol.Feature({
-                    geometry: new ol.geom.LineString(shape.coordinates),
+                    geometry: new ol.geom.LineString(shape.geometry.coordinates),
                     popup: shape.popup,
                     title: shape.title,
                     content: shape.content
@@ -138,7 +140,9 @@ MapOL.prototype.setShapes = function (shapes) {
                 break;
 
             case "ShapeCircle":
-                var circle = new ol.geom.Circle(shape.coordinates[0], shape.radius / ol.proj.getPointResolution('EPSG:3857', 1, shape.coordinates[0]));
+                shape.geometry.coordinates = ol.proj.transform(shape.geometry.coordinates, 'EPSG:4326', 'EPSG:3857');
+
+                var circle = new ol.geom.Circle(shape.geometry.coordinates, shape.radius / ol.proj.getPointResolution('EPSG:3857', 1, shape.geometry.coordinates));
 
                 feature = new ol.Feature({
                     //radius / ol.proj.getPointResolution('EPSG:3857', 1, feature.getGeometry().getCoordinates()
@@ -239,38 +243,53 @@ MapOL.prototype.onMapClick = function (evt, popup, element) {
     $(element).popover('dispose');
 
     var that = this;
-    var showedPopup = false;
+    var invokeMethod = true;
 
     this.Map.forEachFeatureAtPixel(evt.pixel, function (feature) {
         if (feature != null) {
             var reduced = that.getReducedFeature(feature);
             that.Instance.invokeMethodAsync('OnInternalFeatureClick', reduced);
         }
-        if (feature.marker != null) that.Instance.invokeMethodAsync('OnInternalMarkerClick', feature.marker);
-        if (feature.geometry != null) that.Instance.invokeMethodAsync('OnInternalGeometryClick', feature.geometry);
 
-        var showPopup = feature.get("popup");
-        var title = feature.get("title");
-        var content = feature.get('content');
-       
-        if (showPopup && title != "") {
-            var coordinates = feature.getGeometry().getCoordinates();
+        var shape = null;
 
-            popup.setPosition(coordinates);
+        if ((feature.marker != null) && invokeMethod) {
+            shape = feature.marker;
+            invokeMethod = false;
+            that.Instance.invokeMethodAsync('OnInternalMarkerClick', shape);
+        }
 
-            $(element).popover({
-                placement: 'top',
-                html: true,
-                title: title,
-                content: content,
-            });
+        if ((feature.shape != null) && invokeMethod) {
+            shape = feature.shape;
+            invokeMethod = false;
+            that.Instance.invokeMethodAsync('OnInternalShapeClick', shape);
+        }
 
-            $(element).popover('show');
-            showedPopup = true;
+        if (shape) {
+            var showPopup = shape.popup;
+            var title = shape.properties.title ?? "";
+            var content = shape.properties.content ?? "";
+
+            if (showPopup) {
+                var coordinates = feature.getGeometry().getCoordinates();
+
+                popup.setPosition(coordinates);
+
+                $(element).popover({
+                    placement: 'top',
+                    html: true,
+                    title: title,
+                    content: content,
+                });
+
+                $(element).popover('show');
+            }
         }
     });
 
-    if (!showedPopup) {
+    if (invokeMethod) {
+        invokeMethod = false;
+
         var coordinate = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326')
         var point = { Latitude: coordinate[1], Longitude: coordinate[0] };
 
@@ -289,6 +308,8 @@ MapOL.prototype.onMapPointerMove = function (evt, element) {
 
     //_Map.getTarget().style.cursor = hit ? 'pointer' : '';
 }
+
+//--- Styles -----------------------------------------------------------------//
 
 MapOL.prototype.pinStyle = function (marker) {
     return new ol.style.Style({
@@ -352,7 +373,7 @@ MapOL.prototype.flagStyle = function (marker) {
             scale: 1,
         }),
         text: new ol.style.Text({
-            text: marker.title,
+            text: marker.properties.title,
             offsetY: -size - padBottom + 1,
             offsetX: -size,
             textAlign: "left",
@@ -395,7 +416,7 @@ MapOL.prototype.awesomeStyle = function (marker) {
         }),
         new ol.style.Style({
             text: new ol.style.Text({
-                text: String.fromCodePoint(marker.icon),
+                text: marker.properties.label, // String.fromCodePoint(marker.icon),
                 offsetY: -22,
                 opacity: 1,
                 scale: 1,
@@ -410,7 +431,7 @@ MapOL.prototype.lineStyle = function (line) {
     return new ol.style.Style({
         stroke: new ol.style.Stroke({ color: line.borderColor, width: line.borderSize }),
         text: new ol.style.Text({
-            text: line.label,
+            text: line.properties.label,
             placement: "line",
             opacity: 1,
             scale: line.textScale,
@@ -425,10 +446,8 @@ MapOL.prototype.circleStyle = function (circle) {
         fill: new ol.style.Fill({ color: circle.backgroundColor }),
         stroke: new ol.style.Stroke({ color: circle.borderColor, width: circle.borderSize }),
         text: new ol.style.Text({
-            //textAlign: "Start",
-            //textBaseline: "Middle",
             overflow: true,
-            text: circle.label,
+            text: circle.properties.label,
             placement: "line",
             scale: circle.textScale,
             fill: new ol.style.Fill({ color: circle.color }),

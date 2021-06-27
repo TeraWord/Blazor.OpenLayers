@@ -9,12 +9,11 @@ namespace TeraWord.Blazor.OpenLayers
 { 
     public class Marker : Shape
     {
-        public Marker() { Geometry = new GeometryPoint(); }
+        public Marker() { Geometry = new Geometry("Point"); }
 
-        public Marker(Point point) { Geometry = new GeometryPoint(); Point = point; }
+        public Marker(Point point) { Geometry = new Geometry("Point"); Point = point; }
 
-        public Point Point { get => ((GeometryPoint)Geometry).Point; set => ((GeometryPoint)Geometry).Point = value; }
-
-        public int Icon { get; set; }
+        public Point Point { get => _point; set { _point = value; Geometry.Coordinates = value?.Coordinates; } }
+        private Point _point;
     }
 }

@@ -8,13 +8,16 @@ namespace TeraWord.Blazor.OpenLayers
 {
     public class ShapeLine : Shape
     {
-        public ShapeLine() { Geometry = new GeometryLineString(); }
+        public ShapeLine() { Geometry = new Geometry("LineString"); }
 
         public ShapeLine(params Point[] point)
         {
+            Geometry = new Geometry("LineString");
             Points = new List<Point>(point);
         }
+              
+        public IEnumerable<Point> Points { get => _points; set { _points = value; Geometry.Coordinates = value?.Select(x => x.Coordinates); } }
+        private IEnumerable<Point> _points;
 
-        public IEnumerable<Point> Points { get => ((GeometryLineString)Geometry).Points; set => ((GeometryLineString)Geometry).Points = value; }
     }
 }
