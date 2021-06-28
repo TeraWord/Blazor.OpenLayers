@@ -38,7 +38,14 @@ function MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attribut
     this.Instance = instance;
     this.Defaults = defaults;
 
+    var select = new ol.interaction.Select();
+
+    var translate = new ol.interaction.Translate({
+        features: select.getFeatures()
+    });
+
     this.Map = new ol.Map({
+        interactions: ol.interaction.defaults().extend([select, translate]),
         layers: [
             new ol.layer.Tile({
                 source: new ol.source.OSM({
@@ -63,7 +70,7 @@ function MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attribut
         source: new ol.source.Vector()
     });
 
-    this.Map.addLayer(this.Markers);    
+    this.Map.addLayer(this.Markers);
 
     var popupElement = document.getElementById(popupID);
 
