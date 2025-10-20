@@ -1,7 +1,7 @@
 ﻿var _MapOL = new Array();
 
-export function MapOLInit(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance) {
-    _MapOL[mapID] = new MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance);
+export function MapOLInit(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance, layers) {
+    _MapOL[mapID] = new MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance, layers);
 }
 
 export function MapOLCenter(mapID, point) {
@@ -34,7 +34,7 @@ export function MapOLSetShapes(mapID, shapes) {
 
 // --- MapOL ----------------------------------------------------------------------------//
 
-function MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance) {
+function MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attributions, instance, layers) {
     this.Instance = instance;
     this.Defaults = defaults;
 
@@ -46,19 +46,36 @@ function MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attribut
 
     this.Map = new ol.Map({
         interactions: ol.interaction.defaults().extend([select, translate]),
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM({
-                    attributions: [ol.source.OSM.ATTRIBUTION, attributions]
-                })
-            })
-        ],
         target: mapID,
         view: new ol.View({
             center: ol.proj.transform(center.coordinates, 'EPSG:4326', 'EPSG:3857'),
             zoom: zoom
         })
     });
+
+    if (layers.length == 0) {
+        var source = new ol.source.OSM({
+            attributions: [ol.source.OSM.ATTRIBUTION, attributions]
+        });
+
+        this.Map.addLayer(new ol.layer.Tile({ source: source }));
+    }
+    else {
+        layers.forEach((layer) => {
+            var source;
+
+            switch (layer.kind) {
+                case "Tile":
+                    source = new ol.source.TileImage({
+                        url: layer.url,
+                        attributions: [layer.attributions]
+                    });
+                    break;
+            }
+
+            this.Map.addLayer(new ol.layer.Tile({ source: source }));
+        });
+    }
 
     this.Geometries = new ol.layer.Vector({
         source: new ol.source.Vector()
@@ -90,6 +107,20 @@ function MapOL(mapID, popupID, defaults, center, zoom, markers, shapes, attribut
 
     this.setMarkers(markers);
     this.setShapes(shapes);
+}
+
+MapOL.prototype.addLayer = function (layer, index) {
+
+    var source = new ol.source.Tile({
+        url: layer.url,
+        attributions: [layer.attributions]
+    });
+
+    this.Map.addLayer(
+        new ol.layer.Tile({
+            source: source
+        })
+    );
 }
 
 MapOL.prototype.setMarkers = function (markers) {
@@ -133,8 +164,8 @@ MapOL.prototype.setShapes = function (shapes) {
     if (!shapes) return;
 
     shapes.forEach((shape) => {
-        
-                
+
+
         var feature;
 
         switch (shape.kind) {
@@ -183,7 +214,7 @@ MapOL.prototype.setShapes = function (shapes) {
     });
 }
 
-MapOL.prototype.loadGeoJson = function (json) {   
+MapOL.prototype.loadGeoJson = function (json) {
     if (this.GeoLayer) {
         var source = this.GeoLayer.getSource();
 
@@ -191,7 +222,7 @@ MapOL.prototype.loadGeoJson = function (json) {
     }
 
     if (!json) return;
-    
+
     var geoSource = new ol.source.Vector({
         features: (new ol.format.GeoJSON()).readFeatures(json, { featureProjection: 'EPSG:3857' })
     });
@@ -251,7 +282,7 @@ MapOL.prototype.getReducedFeature = function (feature) {
 
     var properties = objectWithoutKey(feature.getProperties(), "geometry");
 
-    var reduced = { 
+    var reduced = {
         type: "Feature",
         geometry: {
             type: feature.getGeometry().getType(),
@@ -377,11 +408,11 @@ MapOL.prototype.flagStyle = function (marker) {
         size: [width, height],
         pixelRatio: 1
     });
-       
+
     var symbol = [
         [0, 0],
         [width, 0],
-        [width /2, height],
+        [width / 2, height],
         [0, 0]
     ];
 
@@ -489,7 +520,7 @@ MapOL.prototype.circleStyle = function (circle) {
             offsetY: 0,
             rotation: 0
         }),
-    });   
+    });
 }
 
 // --- GeoStyles ------------------------------------------------------------------------//

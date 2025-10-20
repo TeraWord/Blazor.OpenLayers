@@ -50,6 +50,8 @@ namespace Demo.Pages
 
             if (firstRender)
             {
+                Map.Layers.Add(new LayerGoogle());
+                
                 Center = new Point { Latitude = 39.2236, Longitude = 9.1181 };
 
                 Map.Markers.Add(new MarkerPin(Center) { Color = "#00FF00" });

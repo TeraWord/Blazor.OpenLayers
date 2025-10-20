@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using TeraWord.Blazor.OpenLayers;
 
 namespace TeraWord.Blazor.OpenLayers
 {
@@ -25,6 +26,8 @@ namespace TeraWord.Blazor.OpenLayers
         [Parameter] public ObservableCollection<object> Markers { get; set; }
 
         [Parameter] public ObservableCollection<Shape> Shapes { get; set; }
+
+        [Parameter] public List<Layer> Layers { get; set; }
 
         [Parameter] public bool ShowPopup { get; set; }
 
@@ -61,6 +64,7 @@ namespace TeraWord.Blazor.OpenLayers
             Center ??= new Point { Latitude = 39.2236, Longitude = 9.1181 };
             Markers ??= new ObservableCollection<object>();
             Shapes ??= new ObservableCollection<Shape>();
+            Layers ??= new List<Layer>();
 
             Markers.CollectionChanged += Markers_CollectionChanged;
             Shapes.CollectionChanged += Geometries_CollectionChanged;
@@ -77,7 +81,7 @@ namespace TeraWord.Blazor.OpenLayers
 
                 var popupID = string.IsNullOrWhiteSpace(PopupID) ? InternalPopupID : PopupID;
 
-                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Defaults, Center, Zoom, Markers, Shapes, Attributions, Instance);
+                if (Module is not null) await Module.InvokeVoidAsync("MapOLInit", MapID, popupID, Defaults, Center, Zoom, Markers, Shapes, Attributions, Instance, Layers);
             }
         }
 
